@@ -15,11 +15,12 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Clock, Check, X, Loader2, Zap, Plus } from "lucide-react";
+import { Check, X, Loader2, Zap, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { completeWorkout, deleteWorkout } from "@/lib/actions/workouts";
 import { ExercisePicker } from "./exercise-picker";
 import { SetLogger } from "./set-logger";
+import { Timer } from "./timer";
 
 interface Exercise {
     id: string;
@@ -42,6 +43,7 @@ interface Workout {
     date: Date;
     status: string;
     sets: Set[];
+    createdAt: Date;
 }
 
 interface ActiveWorkoutProps {
@@ -88,7 +90,15 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
     const handleCompleteWorkout = () => {
         startTransition(async () => {
             try {
-                await completeWorkout({ id: workout.id });
+                // Calculate duration in minutes
+                const duration = Math.round(
+                    (Date.now() - new Date(workout.createdAt).getTime()) / 1000 / 60
+                );
+
+                await completeWorkout({
+                    id: workout.id,
+                    duration: Math.max(1, duration), // Ensure at least 1 minute
+                });
                 router.push("/workouts");
             } catch (error) {
                 console.error("Failed to complete workout:", error);
@@ -107,9 +117,6 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
         });
     };
 
-    const totalSets = workout.sets.length;
-    const uniqueExercises = Object.keys(setsByExercise).length;
-
     return (
         <div className="space-y-6">
             {/* Workout header */}
@@ -122,12 +129,8 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
                         </span>
                     </h2>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            {format(new Date(workout.date), "EEEE, MMMM d, yyyy")}
-                        </span>
-                        <span>{totalSets} sets</span>
-                        <span>{uniqueExercises} exercises</span>
+                        <Timer startTime={workout.createdAt} />
+                        <span>{format(new Date(workout.date), "EEEE, MMMM d, yyyy")}</span>
                     </div>
                 </div>
                 <div className="flex gap-2">
@@ -173,7 +176,7 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
             <div className="flex gap-3 pt-4">
                 <Button
                     onClick={handleCompleteWorkout}
-                    disabled={isPending || totalSets === 0}
+                    disabled={isPending || workout.sets.length === 0}
                     className="flex-1 h-12 text-base font-semibold btn-electric"
                 >
                     {isPending ? (
