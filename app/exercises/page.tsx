@@ -31,7 +31,7 @@ export default async function ExercisesPage() {
                     </div>
 
                     {/* Exercise list */}
-                    <ExerciseList exercises={exercises} />
+                    <ExerciseList exercises={exercises} currentUserId={session?.user?.id} />
                 </main>
             </div>
         </div>

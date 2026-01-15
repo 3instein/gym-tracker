@@ -13,11 +13,12 @@ import {
 } from "@/lib/validations/exercise";
 
 export async function getExercises() {
+    // We still check for session to ensure the user is logged in
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
 
+    // Fetch all exercises (public access)
     return prisma.exercise.findMany({
-        where: { userId: session.user.id },
         orderBy: [{ category: "asc" }, { name: "asc" }],
     });
 }
@@ -28,7 +29,6 @@ export async function getExercisesByCategory(category: string) {
 
     return prisma.exercise.findMany({
         where: {
-            userId: session.user.id,
             category: category as never,
         },
         orderBy: { name: "asc" },
@@ -40,7 +40,7 @@ export async function getExercise(id: string) {
     if (!session?.user?.id) throw new Error("Unauthorized");
 
     return prisma.exercise.findFirst({
-        where: { id, userId: session.user.id },
+        where: { id },
     });
 }
 
