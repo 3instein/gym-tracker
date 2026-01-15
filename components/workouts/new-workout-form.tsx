@@ -11,6 +11,7 @@ import { createWorkout } from "@/lib/actions/workouts";
 import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface NewWorkoutFormProps {
     className?: string;
@@ -20,16 +21,18 @@ export function NewWorkoutForm({ className }: NewWorkoutFormProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [name, setName] = useState("");
-    const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
+    const [date, setDate] = useState<Date | undefined>(new Date());
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!date) return;
 
         startTransition(async () => {
             try {
                 const workout = await createWorkout({
                     name: name || undefined,
-                    date,
+                    date: format(date, "yyyy-MM-dd"),
                 });
                 router.push(`/workouts/${workout.id}`);
             } catch (error) {
@@ -67,17 +70,14 @@ export function NewWorkoutForm({ className }: NewWorkoutFormProps) {
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="date" className="flex items-center gap-2">
+                        <Label className="flex items-center gap-2">
                             <Calendar className="h-4 w-4" />
                             Date
                         </Label>
-                        <Input
-                            id="date"
-                            type="date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                            className="input-electric"
-                            required
+                        <DatePicker
+                            date={date}
+                            setDate={setDate}
+                            className="w-full input-electric"
                         />
                     </div>
 
