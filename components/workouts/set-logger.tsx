@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect, useRef } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,22 +50,35 @@ export function SetLogger({
     onRemoveExercise,
 }: SetLoggerProps) {
     const [isPending, startTransition] = useTransition();
-    const [reps, setReps] = useState(10);
-    const [weight, setWeight] = useState(0);
+    const [reps, setReps] = useState(() =>
+        sets.length > 0 ? sets[sets.length - 1].reps : 10
+    );
+    const [weight, setWeight] = useState(() =>
+        sets.length > 0 ? Number(sets[sets.length - 1].weight) : 0
+    );
     const [lastSet, setLastSet] = useState<{ reps: number; weight: number } | null>(null);
 
-    // Track the previous sets array to detect when a new set is added
-    const prevSetsLengthRef = useRef(sets.length);
+    // Sync with props during render if the number of sets changes (e.g., set added or deleted)
+    const [prevSetsLength, setPrevSetsLength] = useState(sets.length);
+    if (sets.length !== prevSetsLength) {
+        setPrevSetsLength(sets.length);
+        if (sets.length > 0) {
+            const last = sets[sets.length - 1];
+            setReps(last.reps);
+            setWeight(Number(last.weight));
+        }
+    }
 
-    // Fetch last set for this exercise on mount (only when sets is empty)
-    // Also initialize from current workout's last set if sets already exist
+    // Fetch last set from previous sessions ONLY if we have no sets today
+    const isEmpty = sets.length === 0;
     useEffect(() => {
-        if (sets.length === 0 && prevSetsLengthRef.current === 0) {
+        if (isEmpty) {
             async function fetchLastSet() {
                 try {
                     const last = await getLastSetForExercise(exercise.id);
                     if (last) {
                         setLastSet({ reps: last.reps, weight: Number(last.weight) });
+                        // Only set defaults if user hasn't started logging today
                         setReps(last.reps);
                         setWeight(Number(last.weight));
                     }
@@ -75,8 +88,7 @@ export function SetLogger({
             }
             fetchLastSet();
         }
-        prevSetsLengthRef.current = sets.length;
-    }, [exercise.id, sets.length]);
+    }, [exercise.id, isEmpty]);
 
     const handleAddSet = () => {
         startTransition(async () => {
