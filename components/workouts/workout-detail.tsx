@@ -66,7 +66,7 @@ const categoryColors: Record<string, string> = {
 
 export function WorkoutDetail({ workout }: WorkoutDetailProps) {
     const router = useRouter();
-    const [isPending, startTransition] = useTransition();
+    const [, startTransition] = useTransition();
 
     // Group sets by exercise
     const setsByExercise = workout.sets.reduce((acc, set) => {

@@ -184,250 +184,167 @@
 }
 
 /* ============================================
-   ELECTRIC GLOW UTILITIES
+   ELECTRIC GLOW UTILITIES (Tailwind v4 @utility)
    ============================================ */
 
-@layer utilities {
-  /* Electric text glow */
-  .text-glow {
-    text-shadow: 0 0 10px var(--electric), 0 0 20px var(--electric), 0 0 40px var(--electric-glow);
-  }
-  
-  .text-glow-sm {
-    text-shadow: 0 0 5px var(--electric), 0 0 10px var(--electric-glow);
-  }
-  
-  /* Electric box shadows */
-  .shadow-electric {
-    box-shadow: 0 0 15px -3px var(--electric), 0 0 30px -5px var(--electric-glow);
-  }
-  
-  .shadow-electric-sm {
-    box-shadow: 0 0 8px -2px var(--electric), 0 0 15px -3px var(--electric-glow);
-  }
-  
-  .shadow-electric-lg {
-    box-shadow: 0 0 25px -5px var(--electric), 0 0 50px -10px var(--electric-glow);
-  }
-  
-  /* Electric border glow */
-  .border-glow {
-    border-color: var(--electric);
-    box-shadow: 0 0 10px var(--electric), inset 0 0 10px rgba(0, 168, 255, 0.1);
-  }
-  
-  /* Gradient backgrounds */
-  .bg-gradient-electric {
-    background: linear-gradient(135deg, var(--electric) 0%, var(--thunder) 100%);
-  }
-  
-  .bg-gradient-storm {
-    background: linear-gradient(180deg, var(--background) 0%, var(--storm) 100%);
-  }
-  
-  .bg-gradient-dark {
-    background: linear-gradient(180deg, #050510 0%, #0a0a1a 50%, #0f1525 100%);
-  }
-  
-  /* Electric pulse ring */
-  .ring-electric {
-    --tw-ring-color: var(--electric);
-    --tw-ring-shadow: 0 0 0 3px var(--tw-ring-color);
-  }
+@utility text-glow {
+  text-shadow: 0 0 10px var(--electric), 0 0 20px var(--electric), 0 0 40px var(--electric-glow);
+}
+
+@utility text-glow-sm {
+  text-shadow: 0 0 5px var(--electric), 0 0 10px var(--electric-glow);
+}
+
+@utility shadow-electric {
+  box-shadow: 0 0 15px -3px var(--electric), 0 0 30px -5px var(--electric-glow);
+}
+
+@utility shadow-electric-sm {
+  box-shadow: 0 0 8px -2px var(--electric), 0 0 15px -3px var(--electric-glow);
+}
+
+@utility shadow-electric-lg {
+  box-shadow: 0 0 25px -5px var(--electric), 0 0 50px -10px var(--electric-glow);
+}
+
+@utility border-glow {
+  border-color: var(--electric);
+  box-shadow: 0 0 10px var(--electric), inset 0 0 10px rgba(0, 168, 255, 0.1);
+}
+
+@utility bg-gradient-electric {
+  background: linear-gradient(135deg, var(--electric) 0%, var(--thunder) 100%);
+}
+
+@utility bg-gradient-storm {
+  background: linear-gradient(180deg, var(--background) 0%, var(--storm) 100%);
+}
+
+@utility bg-gradient-dark {
+  background: linear-gradient(180deg, #050510 0%, #0a0a1a 50%, #0f1525 100%);
+}
+
+@utility text-gradient-electric {
+  background: linear-gradient(135deg, var(--electric) 0%, var(--electric-glow) 50%, var(--thunder) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ============================================
    ELECTRIC ANIMATIONS
    ============================================ */
 
-@layer utilities {
-  /* Lightning flash */
-  @keyframes lightning {
-    0%, 100% {
-      opacity: 1;
-    }
-    10% {
-      opacity: 0.8;
-    }
-    20% {
-      opacity: 1;
-    }
-    30% {
-      opacity: 0.6;
-    }
-    40% {
-      opacity: 1;
-    }
+@keyframes lightning {
+  0%, 100% { opacity: 1; }
+  10% { opacity: 0.8; }
+  20% { opacity: 1; }
+  30% { opacity: 0.6; }
+  40% { opacity: 1; }
+}
+
+@keyframes electric-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--electric), 0 0 10px var(--electric-glow);
   }
-  
-  .animate-lightning {
-    animation: lightning 3s ease-in-out infinite;
-  }
-  
-  /* Electric pulse */
-  @keyframes electric-pulse {
-    0%, 100% {
-      box-shadow: 0 0 5px var(--electric), 0 0 10px var(--electric-glow);
-    }
-    50% {
-      box-shadow: 0 0 20px var(--electric), 0 0 40px var(--electric-glow), 0 0 60px var(--thunder);
-    }
-  }
-  
-  .animate-electric-pulse {
-    animation: electric-pulse 2s ease-in-out infinite;
-  }
-  
-  /* Thunder shake */
-  @keyframes thunder-shake {
-    0%, 100% {
-      transform: translateX(0);
-    }
-    10%, 30%, 50%, 70%, 90% {
-      transform: translateX(-1px);
-    }
-    20%, 40%, 60%, 80% {
-      transform: translateX(1px);
-    }
-  }
-  
-  .animate-thunder {
-    animation: thunder-shake 0.5s ease-in-out;
-  }
-  
-  /* Glow pulse for icons/buttons */
-  @keyframes glow-pulse {
-    0%, 100% {
-      filter: drop-shadow(0 0 2px var(--electric));
-    }
-    50% {
-      filter: drop-shadow(0 0 8px var(--electric)) drop-shadow(0 0 15px var(--electric-glow));
-    }
-  }
-  
-  .animate-glow {
-    animation: glow-pulse 2s ease-in-out infinite;
-  }
-  
-  /* Spark effect */
-  @keyframes spark {
-    0% {
-      opacity: 0;
-      transform: scale(0.5) rotate(0deg);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.2) rotate(180deg);
-    }
-    100% {
-      opacity: 0;
-      transform: scale(0.5) rotate(360deg);
-    }
-  }
-  
-  .animate-spark {
-    animation: spark 1s ease-in-out infinite;
-  }
-  
-  /* Floating animation */
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-5px);
-    }
-  }
-  
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-  
-  /* Border flow animation */
-  @keyframes border-flow {
-    0% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%;
-    }
-  }
-  
-  .border-animated {
-    background: linear-gradient(90deg, var(--electric), var(--thunder), var(--electric-glow), var(--electric));
-    background-size: 300% 100%;
-    animation: border-flow 3s linear infinite;
+  50% {
+    box-shadow: 0 0 20px var(--electric), 0 0 40px var(--electric-glow), 0 0 60px var(--thunder);
   }
 }
 
+@keyframes glow-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px var(--electric));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px var(--electric)) drop-shadow(0 0 15px var(--electric-glow));
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@utility animate-lightning {
+  animation: lightning 3s ease-in-out infinite;
+}
+
+@utility animate-electric-pulse {
+  animation: electric-pulse 2s ease-in-out infinite;
+}
+
+@utility animate-glow {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@utility animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
 /* ============================================
-   COMPONENT ENHANCEMENTS
+   COMPONENT STYLES
    ============================================ */
 
-@layer components {
-  /* Electric button hover effect */
-  .btn-electric {
-    @apply relative overflow-hidden transition-all duration-300;
-    background: linear-gradient(135deg, var(--electric) 0%, var(--thunder) 100%);
-  }
-  
-  .btn-electric:hover {
-    @apply shadow-electric-lg;
-    transform: translateY(-2px);
-  }
-  
-  .btn-electric:active {
-    transform: translateY(0);
-  }
-  
-  /* Electric card */
-  .card-electric {
-    @apply relative overflow-hidden rounded-xl border border-border bg-card;
-    transition: all 0.3s ease;
-  }
-  
-  .card-electric:hover {
-    @apply border-electric/50 shadow-electric-sm;
-  }
-  
-  /* Electric input focus */
-  .input-electric:focus {
-    @apply border-electric ring-2 ring-electric/30;
-    box-shadow: 0 0 15px -5px var(--electric);
-  }
-  
-  /* Thunder gradient text */
-  .text-gradient-electric {
-    background: linear-gradient(135deg, var(--electric) 0%, var(--electric-glow) 50%, var(--thunder) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  /* Stats card with electric border */
-  .stats-card {
-    @apply relative rounded-xl border border-border bg-card/50 backdrop-blur-sm p-6;
-  }
-  
-  .stats-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, transparent 0%, var(--electric) 50%, transparent 100%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .stats-card:hover::before {
-    opacity: 1;
-  }
+.btn-electric {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+  background: linear-gradient(135deg, var(--electric) 0%, var(--thunder) 100%);
+}
+
+.btn-electric:hover {
+  box-shadow: 0 0 25px -5px var(--electric), 0 0 50px -10px var(--electric-glow);
+  transform: translateY(-2px);
+}
+
+.btn-electric:active {
+  transform: translateY(0);
+}
+
+.card-electric {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  transition: all 0.3s ease;
+}
+
+.card-electric:hover {
+  border-color: rgba(0, 168, 255, 0.5);
+  box-shadow: 0 0 8px -2px var(--electric), 0 0 15px -3px var(--electric-glow);
+}
+
+.input-electric:focus {
+  border-color: var(--electric);
+  box-shadow: 0 0 0 2px rgba(0, 168, 255, 0.3), 0 0 15px -5px var(--electric);
+}
+
+.stats-card {
+  position: relative;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background-color: rgba(10, 10, 26, 0.5);
+  backdrop-filter: blur(8px);
+  padding: 1.5rem;
+}
+
+.stats-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, transparent 0%, var(--electric) 50%, transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stats-card:hover::before {
+  opacity: 1;
 }

@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Settings, Zap, LogOut, User } from "lucide-react";
 import { signOut } from "@/lib/auth";
@@ -40,11 +41,12 @@ export default async function SettingsPage() {
                         <CardContent className="space-y-4">
                             <div className="flex items-center gap-4">
                                 {session?.user?.image ? (
-                                    <img
-                                        src={session.user.image}
-                                        alt={session.user.name || "User"}
-                                        className="h-16 w-16 rounded-full ring-2 ring-electric/50"
-                                    />
+                                    <Avatar className="h-16 w-16 ring-2 ring-electric/50">
+                                        <AvatarImage src={session.user.image} alt={session.user.name || "User"} />
+                                        <AvatarFallback className="bg-gradient-electric text-2xl font-bold text-background">
+                                            {session.user.name?.[0] || "U"}
+                                        </AvatarFallback>
+                                    </Avatar>
                                 ) : (
                                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-electric text-2xl font-bold text-background">
                                         {session?.user?.name?.[0] || "U"}
