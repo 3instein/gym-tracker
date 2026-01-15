@@ -1,4 +1,6 @@
 import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
 import { getWorkoutStats, getWorkouts, getActiveWorkout } from "@/lib/actions/workouts";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
@@ -8,6 +10,10 @@ import { QuickActions } from "@/components/dashboard/quick-actions";
 
 export default async function DashboardPage() {
   const session = await auth();
+
+  if (!session?.user) {
+    redirect("/api/auth/clear-session");
+  }
   const [stats, workouts, activeWorkout] = await Promise.all([
     getWorkoutStats(),
     getWorkouts(5),
