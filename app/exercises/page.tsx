@@ -24,7 +24,7 @@ export default async function ExercisesPage() {
                                 <span className="text-gradient-electric">Exercise Library</span>
                             </h2>
                             <p className="text-muted-foreground">
-                                Manage your exercises and build your personal workout library.
+                                Browse the community library or create your own custom exercises.
                             </p>
                         </div>
                         <ExerciseForm />
