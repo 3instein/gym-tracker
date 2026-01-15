@@ -11,8 +11,8 @@ export default async function NewWorkoutPage() {
             <Sidebar />
             <div className="flex-1 md:ml-64">
                 <Header user={session?.user} title="New Workout" />
-                <main className="p-6 flex items-center justify-center min-h-[calc(100vh-64px)]">
-                    <NewWorkoutForm />
+                <main className="p-6 w-full flex items-center justify-center min-h-[calc(100vh-64px)]">
+                    <NewWorkoutForm className="w-full max-w-full" />
                 </main>
             </div>
         </div>

@@ -10,7 +10,13 @@ import { Zap, Loader2, Calendar } from "lucide-react";
 import { createWorkout } from "@/lib/actions/workouts";
 import { format } from "date-fns";
 
-export function NewWorkoutForm() {
+import { cn } from "@/lib/utils";
+
+interface NewWorkoutFormProps {
+    className?: string;
+}
+
+export function NewWorkoutForm({ className }: NewWorkoutFormProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [name, setName] = useState("");
@@ -33,7 +39,7 @@ export function NewWorkoutForm() {
     };
 
     return (
-        <Card className="max-w-lg mx-auto card-electric" style={{ boxShadow: '0 0 25px -5px var(--electric), 0 0 50px -10px var(--electric-glow)' }}>
+        <Card className={cn("max-w-lg mx-auto card-electric", className)} style={{ boxShadow: '0 0 25px -5px var(--electric), 0 0 50px -10px var(--electric-glow)' }}>
             <CardHeader className="text-center space-y-4">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-electric shadow-electric animate-electric-pulse">
                     <Zap className="h-8 w-8 text-background" />
