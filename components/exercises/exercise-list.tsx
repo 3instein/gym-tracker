@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -89,22 +89,23 @@ export function ExerciseList({ exercises, currentUserId }: ExerciseListProps) {
     return (
         <div className="space-y-4">
             {/* Category tabs */}
-            <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-                <ScrollArea className="w-full">
-                    <TabsList className="inline-flex h-auto gap-2 bg-transparent p-0">
+            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
+                <ScrollArea className="w-full pb-3" dir="ltr">
+                    <TabsList className="flex w-max min-w-full gap-2 bg-transparent p-0">
                         {categories.map((cat) => (
                             <TabsTrigger
                                 key={cat.value}
                                 value={cat.value}
                                 className={cn(
                                     "rounded-xl border px-4 py-2 data-[state=active]:border-electric data-[state=active]:bg-electric/10 data-[state=active]:text-electric",
-                                    "border-border/50 hover:border-border"
+                                    "border-border/50 hover:border-border shrink-0"
                                 )}
                             >
                                 {cat.label}
                             </TabsTrigger>
                         ))}
                     </TabsList>
+                    <ScrollBar orientation="horizontal" />
                 </ScrollArea>
 
                 <TabsContent value={selectedCategory} className="mt-4">
@@ -130,12 +131,57 @@ export function ExerciseList({ exercises, currentUserId }: ExerciseListProps) {
                                     className="card-electric group transition-all duration-200 hover:-translate-y-1"
                                 >
                                     <CardContent className="p-4">
-                                        <div className="flex items-start justify-between gap-2">
-                                            <div className="space-y-2 flex-1">
-                                                <div className="flex items-center gap-2">
+                                        <div className="flex flex-col gap-2">
+                                            <div className={cn("space-y-2", exercise.userId === currentUserId && "pr-20")}>
+                                                <div className="flex items-center justify-between">
                                                     <h3 className="font-semibold text-foreground">
                                                         {exercise.name}
                                                     </h3>
+                                                    {exercise.userId === currentUserId && (
+                                                        <div className="absolute right-3 top-3.5 flex gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <ExerciseForm
+                                                                exercise={{
+                                                                    ...exercise,
+                                                                    category: exercise.category as Category,
+                                                                }}
+                                                            />
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="h-8 w-8 text-destructive hover:text-destructive"
+                                                                    >
+                                                                        {deletingId === exercise.id && isPending ? (
+                                                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                                                        ) : (
+                                                                            <Trash2 className="h-4 w-4" />
+                                                                        )}
+                                                                        <span className="sr-only">Delete</span>
+                                                                    </Button>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent>
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle>Delete exercise?</AlertDialogTitle>
+                                                                        <AlertDialogDescription>
+                                                                            This will permanently delete &quot;{exercise.name}&quot; and
+                                                                            remove it from any future workouts. This action cannot be
+                                                                            undone.
+                                                                        </AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                        <AlertDialogAction
+                                                                            onClick={() => handleDelete(exercise.id)}
+                                                                            className="bg-destructive hover:bg-destructive/90"
+                                                                        >
+                                                                            Delete
+                                                                        </AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <Badge
                                                     variant="outline"
@@ -152,50 +198,6 @@ export function ExerciseList({ exercises, currentUserId }: ExerciseListProps) {
                                                     </p>
                                                 )}
                                             </div>
-                                            {exercise.userId === currentUserId && (
-                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <ExerciseForm
-                                                        exercise={{
-                                                            ...exercise,
-                                                            category: exercise.category as Category,
-                                                        }}
-                                                    />
-                                                    <AlertDialog>
-                                                        <AlertDialogTrigger asChild>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="text-destructive hover:text-destructive"
-                                                            >
-                                                                {deletingId === exercise.id && isPending ? (
-                                                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                                                ) : (
-                                                                    <Trash2 className="h-4 w-4" />
-                                                                )}
-                                                            </Button>
-                                                        </AlertDialogTrigger>
-                                                        <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                                <AlertDialogTitle>Delete exercise?</AlertDialogTitle>
-                                                                <AlertDialogDescription>
-                                                                    This will permanently delete &quot;{exercise.name}&quot; and
-                                                                    remove it from any future workouts. This action cannot be
-                                                                    undone.
-                                                                </AlertDialogDescription>
-                                                            </AlertDialogHeader>
-                                                            <AlertDialogFooter>
-                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                <AlertDialogAction
-                                                                    onClick={() => handleDelete(exercise.id)}
-                                                                    className="bg-destructive hover:bg-destructive/90"
-                                                                >
-                                                                    Delete
-                                                                </AlertDialogAction>
-                                                            </AlertDialogFooter>
-                                                        </AlertDialogContent>
-                                                    </AlertDialog>
-                                                </div>
-                                            )}
                                         </div>
                                     </CardContent>
                                 </Card>

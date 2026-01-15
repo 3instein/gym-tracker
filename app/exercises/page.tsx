@@ -11,11 +11,11 @@ export default async function ExercisesPage() {
     const exercises = await getExercises();
 
     return (
-        <div className="flex min-h-screen bg-background">
+        <div className="flex min-h-screen w-full bg-background overflow-x-hidden">
             <Sidebar />
-            <div className="flex-1 md:ml-64">
+            <div className="flex-1 md:ml-64 min-w-0">
                 <Header user={session?.user} title="Exercises" />
-                <main className="p-6 space-y-6">
+                <main className="p-4 sm:p-6 space-y-6">
                     {/* Header */}
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="space-y-1">
@@ -27,7 +27,7 @@ export default async function ExercisesPage() {
                                 Browse the community library or create your own custom exercises.
                             </p>
                         </div>
-                        <ExerciseForm />
+                        <ExerciseForm triggerClassName="w-full sm:w-auto" />
                     </div>
 
                     {/* Exercise list */}

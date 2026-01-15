@@ -20,9 +20,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Pencil } from "lucide-react";
 import { createExercise, updateExercise } from "@/lib/actions/exercises";
 import { type Category } from "@/lib/validations/exercise";
+import { cn } from "@/lib/utils";
 
 const categories: { value: Category; label: string }[] = [
     { value: "CHEST", label: "Chest" },
@@ -45,9 +46,10 @@ interface ExerciseFormProps {
         description?: string | null;
     };
     onSuccess?: () => void;
+    triggerClassName?: string;
 }
 
-export function ExerciseForm({ exercise, onSuccess }: ExerciseFormProps) {
+export function ExerciseForm({ exercise, onSuccess, triggerClassName }: ExerciseFormProps) {
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
     const [name, setName] = useState(exercise?.name || "");
@@ -91,11 +93,12 @@ export function ExerciseForm({ exercise, onSuccess }: ExerciseFormProps) {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 {isEditing ? (
-                    <Button variant="ghost" size="sm">
-                        Edit
+                    <Button variant="ghost" size="icon" className={cn("h-8 w-8", triggerClassName)}>
+                        <Pencil className="h-4 w-4" />
+                        <span className="sr-only">Edit</span>
                     </Button>
                 ) : (
-                    <Button className="btn-electric">
+                    <Button className={cn("btn-electric", triggerClassName)}>
                         <Plus className="mr-2 h-4 w-4" />
                         Add Exercise
                     </Button>
