@@ -41,7 +41,7 @@ export function Sidebar() {
             {/* Mobile overlay */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+                    className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden cursor-pointer"
                     onClick={() => setIsOpen(false)}
                 />
             )}
@@ -76,7 +76,7 @@ export function Sidebar() {
                                     href={item.href}
                                     onClick={() => setIsOpen(false)}
                                     className={cn(
-                                        "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
+                                        "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 cursor-pointer",
                                         isActive
                                             ? "bg-electric/10 text-electric shadow-electric-sm border border-electric/30"
                                             : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"

@@ -154,7 +154,7 @@ export function ExercisePicker({ exercises, onSelect, isLoading, children }: Exe
                                                     key={exercise.id}
                                                     onClick={() => handleToggle(exercise.id)}
                                                     className={cn(
-                                                        "w-full flex items-center justify-between rounded-xl border p-3 text-left transition-all duration-200",
+                                                        "w-full flex items-center justify-between rounded-xl border p-3 text-left transition-all duration-200 cursor-pointer",
                                                         isSelected
                                                             ? "border-electric bg-electric/10 shadow-[0_0_15px_-3px_rgba(0,163,255,0.3)]"
                                                             : "border-border/50 bg-card/50 hover:border-electric/30 hover:bg-accent/30"
