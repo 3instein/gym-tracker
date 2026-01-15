@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Clock, Dumbbell, ChevronLeft, Trash2 } from "lucide-react";
+import { Play, Calendar, Clock, Dumbbell, ChevronLeft, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { deleteWorkout } from "@/lib/actions/workouts";
+import { deleteWorkout, duplicateWorkout } from "@/lib/actions/workouts";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -105,6 +105,17 @@ export function WorkoutDetail({ workout }: WorkoutDetailProps) {
         });
     };
 
+    const handleDuplicate = () => {
+        startTransition(async () => {
+            try {
+                const newWorkout = await duplicateWorkout(workout.id);
+                router.push(`/workouts/${newWorkout.id}`);
+            } catch (error) {
+                console.error("Failed to duplicate workout:", error);
+            }
+        });
+    };
+
     return (
         <div className="space-y-6">
             {/* Back button */}
@@ -151,35 +162,45 @@ export function WorkoutDetail({ workout }: WorkoutDetailProps) {
                     </div>
                 </div>
 
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button
-                            variant="outline"
-                            className="border-destructive/50 text-destructive hover:bg-destructive/10"
-                        >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Workout
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Delete workout?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This will permanently delete this workout and all logged sets.
-                                This action cannot be undone.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                                onClick={handleDelete}
-                                className="bg-destructive hover:bg-destructive/90"
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                        onClick={handleDuplicate}
+                        className="btn-electric"
+                    >
+                        <Play className="mr-2 h-4 w-4" />
+                        Start Workout
+                    </Button>
+
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className="border-destructive/50 text-destructive hover:bg-destructive/10"
                             >
-                                Delete
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Workout
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Delete workout?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This will permanently delete this workout and all logged sets.
+                                    This action cannot be undone.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                    onClick={handleDelete}
+                                    className="bg-destructive hover:bg-destructive/90"
+                                >
+                                    Delete
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </div>
             </div>
 
             <Separator />

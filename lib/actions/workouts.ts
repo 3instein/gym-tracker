@@ -185,3 +185,47 @@ export async function getWorkoutStats() {
         totalSets,
     };
 }
+
+export async function duplicateWorkout(id: string) {
+    const session = await auth();
+    if (!session?.user?.id) throw new Error("Unauthorized");
+
+    const workout = await prisma.workoutSession.findFirst({
+        where: { id, userId: session.user.id },
+        include: {
+            sets: {
+                orderBy: [{ exerciseId: "asc" }, { setNumber: "asc" }],
+            },
+        },
+    });
+
+    if (!workout) throw new Error("Workout not found");
+
+    const dateOnly = new Date();
+    dateOnly.setUTCHours(0, 0, 0, 0);
+
+    const newWorkout = await prisma.workoutSession.create({
+        data: {
+            name: workout.name ? `${workout.name}` : "Workout Session",
+            date: dateOnly,
+            status: "IN_PROGRESS",
+            userId: session.user.id,
+            sets: {
+                createMany: {
+                    data: workout.sets.map((set) => ({
+                        exerciseId: set.exerciseId,
+                        setNumber: set.setNumber,
+                        reps: set.reps,
+                        weight: set.weight,
+                        isWarmup: set.isWarmup,
+                        notes: set.notes,
+                    })),
+                },
+            },
+        },
+    });
+
+    revalidatePath("/");
+    revalidatePath("/workouts");
+    return newWorkout;
+}
