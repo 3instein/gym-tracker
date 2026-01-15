@@ -16,7 +16,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/components/ui/alert-dialog";
 import { Trash2, Dumbbell, Loader2 } from "lucide-react";
 import { deleteExercise } from "@/lib/actions/exercises";
 import { ExerciseForm } from "./exercise-form";
