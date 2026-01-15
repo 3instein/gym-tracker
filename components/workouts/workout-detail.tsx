@@ -8,7 +8,7 @@ import { Calendar, Clock, Dumbbell, ChevronLeft, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { deleteWorkout } from "@/lib/actions/workouts";
 import {
     AlertDialog,
@@ -22,6 +22,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { MuscleFilter, type Category } from "./muscle-filter";
 
 interface Exercise {
     id: string;
@@ -67,6 +68,7 @@ const categoryColors: Record<string, string> = {
 export function WorkoutDetail({ workout }: WorkoutDetailProps) {
     const router = useRouter();
     const [, startTransition] = useTransition();
+    const [selectedCategory, setSelectedCategory] = useState<Category>("ALL");
 
     // Group sets by exercise
     const setsByExercise = workout.sets.reduce((acc, set) => {
@@ -80,6 +82,17 @@ export function WorkoutDetail({ workout }: WorkoutDetailProps) {
         acc[exerciseId].sets.push(set);
         return acc;
     }, {} as Record<string, { exercise: Exercise; sets: Set[] }>);
+
+    // Filter exercises by category
+    const filteredExercises = Object.values(setsByExercise).filter(({ exercise }) => {
+        if (selectedCategory === "ALL") return true;
+        return exercise.category === selectedCategory;
+    });
+
+    // Get unique categories available in the current workout
+    const categoriesInWorkout = Array.from(
+        new Set(Object.values(setsByExercise).map(({ exercise }) => exercise.category))
+    );
 
     const handleDelete = () => {
         startTransition(async () => {
@@ -171,51 +184,73 @@ export function WorkoutDetail({ workout }: WorkoutDetailProps) {
 
             <Separator />
 
+            {/* Muscle Group Filter */}
+            {Object.keys(setsByExercise).length > 0 && (
+                <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground px-1">Filter by muscle group</p>
+                    <MuscleFilter
+                        selectedCategory={selectedCategory}
+                        onCategoryChange={setSelectedCategory}
+                        categoriesInWorkout={categoriesInWorkout}
+                    />
+                </div>
+            )}
+
             {/* Exercise summary */}
-            <div className="grid gap-4 md:grid-cols-2">
-                {Object.values(setsByExercise).map(({ exercise, sets }) => (
-                    <Card key={exercise.id} className="card-electric">
-                        <CardHeader className="pb-3">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg">{exercise.name}</CardTitle>
-                                <Badge
-                                    variant="outline"
-                                    className={cn(
-                                        "text-xs",
-                                        categoryColors[exercise.category] || categoryColors.OTHER
-                                    )}
-                                >
-                                    {exercise.category.replace("_", " ")}
-                                </Badge>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-2">
-                                {sets.map((set) => (
-                                    <div
-                                        key={set.id}
-                                        className="flex items-center gap-3 rounded-lg bg-accent/30 px-3 py-2"
-                                    >
-                                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-electric/20 text-electric text-sm font-bold">
-                                            {set.setNumber}
-                                        </div>
-                                        <span className="text-sm">
-                                            <span className="font-semibold">{set.reps}</span> reps ×{" "}
-                                            <span className="font-semibold">{Number(set.weight)}</span>
-                                            kg
-                                        </span>
-                                        {set.isWarmup && (
-                                            <Badge variant="outline" className="text-xs">
-                                                Warmup
-                                            </Badge>
+            {filteredExercises.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-muted rounded-2xl">
+                    <Dumbbell className="h-10 w-10 text-muted-foreground mb-4 opacity-50" />
+                    <h3 className="text-lg font-medium mb-1">No exercises found</h3>
+                    <p className="text-sm text-muted-foreground">
+                        Try a different filter
+                    </p>
+                </div>
+            ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                    {filteredExercises.map(({ exercise, sets }) => (
+                        <Card key={exercise.id} className="card-electric">
+                            <CardHeader className="pb-3">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg">{exercise.name}</CardTitle>
+                                    <Badge
+                                        variant="outline"
+                                        className={cn(
+                                            "text-xs",
+                                            categoryColors[exercise.category] || categoryColors.OTHER
                                         )}
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
+                                    >
+                                        {exercise.category.replace("_", " ")}
+                                    </Badge>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-2">
+                                    {sets.map((set) => (
+                                        <div
+                                            key={set.id}
+                                            className="flex items-center gap-3 rounded-lg bg-accent/30 px-3 py-2"
+                                        >
+                                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-electric/20 text-electric text-sm font-bold">
+                                                {set.setNumber}
+                                            </div>
+                                            <span className="text-sm">
+                                                <span className="font-semibold">{set.reps}</span> reps ×{" "}
+                                                <span className="font-semibold">{Number(set.weight)}</span>
+                                                kg
+                                            </span>
+                                            {set.isWarmup && (
+                                                <Badge variant="outline" className="text-xs">
+                                                    Warmup
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

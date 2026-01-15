@@ -15,12 +15,14 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Check, X, Loader2, Zap, Plus } from "lucide-react";
+import { Check, X, Loader2, Zap, Plus, Dumbbell } from "lucide-react";
 import { format } from "date-fns";
 import { completeWorkout, deleteWorkout } from "@/lib/actions/workouts";
 import { ExercisePicker } from "./exercise-picker";
 import { SetLogger } from "./set-logger";
 import { Timer } from "./timer";
+
+import { MuscleFilter, type Category } from "./muscle-filter";
 
 interface Exercise {
     id: string;
@@ -55,6 +57,7 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [addedExercises, setAddedExercises] = useState<Exercise[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<Category>("ALL");
 
     // Group sets by exercise
     const setsByExercise = workout.sets.reduce((acc, set) => {
@@ -76,6 +79,17 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
             (e) => !Object.keys(setsByExercise).includes(e.id)
         ),
     ];
+
+    // Filter exercises by category
+    const filteredExercises = allExercises.filter((exercise) => {
+        if (selectedCategory === "ALL") return true;
+        return exercise.category === selectedCategory;
+    });
+
+    // Get unique categories available in the current workout
+    const categoriesInWorkout = Array.from(
+        new Set(allExercises.map((e) => e.category))
+    );
 
     const handleAddExercises = (newExercises: Exercise[]) => {
         setAddedExercises((prev) => {
@@ -145,6 +159,18 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
 
             <Separator />
 
+            {/* Muscle Group Filter */}
+            {allExercises.length > 0 && (
+                <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground px-1">Filter by muscle group</p>
+                    <MuscleFilter
+                        selectedCategory={selectedCategory}
+                        onCategoryChange={setSelectedCategory}
+                        categoriesInWorkout={categoriesInWorkout}
+                    />
+                </div>
+            )}
+
             {/* Exercise list */}
             {allExercises.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -158,9 +184,17 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
                         Click the button above to start logging sets
                     </p>
                 </div>
+            ) : filteredExercises.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-muted rounded-2xl">
+                    <Dumbbell className="h-10 w-10 text-muted-foreground mb-4 opacity-50" />
+                    <h3 className="text-lg font-medium mb-1">No exercises found</h3>
+                    <p className="text-sm text-muted-foreground">
+                        Try a different filter or add a new exercise
+                    </p>
+                </div>
             ) : (
                 <div className="grid gap-4 md:grid-cols-2">
-                    {allExercises.map((exercise) => {
+                    {filteredExercises.map((exercise) => {
                         const exerciseSets = setsByExercise[exercise.id]?.sets || [];
                         return (
                             <SetLogger
@@ -178,6 +212,7 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
                     })}
                 </div>
             )}
+
 
             {/* Action buttons */}
             <div className="flex gap-3 pt-4">
