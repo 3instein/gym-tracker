@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Dumbbell, Loader2 } from "lucide-react";
+import { Plus, Search, Dumbbell, Loader2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Exercise {
@@ -25,7 +25,7 @@ interface Exercise {
 
 interface ExercisePickerProps {
     exercises: Exercise[];
-    onSelect: (exercise: Exercise) => void;
+    onSelect: (exercises: Exercise[]) => void;
     isLoading?: boolean;
     children?: React.ReactNode;
 }
@@ -46,6 +46,7 @@ const categoryColors: Record<string, string> = {
 export function ExercisePicker({ exercises, onSelect, isLoading, children }: ExercisePickerProps) {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
     const filteredExercises = exercises.filter((e) =>
         e.name.toLowerCase().includes(search.toLowerCase())
@@ -61,14 +62,30 @@ export function ExercisePicker({ exercises, onSelect, isLoading, children }: Exe
         return acc;
     }, {} as Record<string, Exercise[]>);
 
-    const handleSelect = (exercise: Exercise) => {
-        onSelect(exercise);
+    const handleToggle = (exerciseId: string) => {
+        setSelectedIds((prev) =>
+            prev.includes(exerciseId)
+                ? prev.filter((id) => id !== exerciseId)
+                : [...prev, exerciseId]
+        );
+    };
+
+    const handleAddSelected = () => {
+        const selectedExercises = exercises.filter((e) => selectedIds.includes(e.id));
+        onSelect(selectedExercises);
         setOpen(false);
         setSearch("");
+        setSelectedIds([]);
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(val) => {
+            setOpen(val);
+            if (!val) {
+                setSearch("");
+                setSelectedIds([]);
+            }
+        }}>
             <DialogTrigger asChild>
                 {children ? (
                     children
@@ -87,10 +104,10 @@ export function ExercisePicker({ exercises, onSelect, isLoading, children }: Exe
                 <DialogHeader>
                     <DialogTitle className="text-gradient-electric flex items-center gap-2">
                         <Dumbbell className="h-5 w-5" />
-                        Add Exercise to Workout
+                        Add Exercises to Workout
                     </DialogTitle>
                     <DialogDescription>
-                        Select an exercise from your library to add to this workout.
+                        Select one or more exercises from your library to add to this workout.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -130,24 +147,40 @@ export function ExercisePicker({ exercises, onSelect, isLoading, children }: Exe
                                         {category.replace("_", " ")}
                                     </h4>
                                     <div className="space-y-2">
-                                        {exerciseList.map((exercise) => (
-                                            <button
-                                                key={exercise.id}
-                                                onClick={() => handleSelect(exercise)}
-                                                className="w-full flex items-center justify-between rounded-xl border border-border/50 bg-card/50 p-3 text-left transition-all duration-200 hover:border-electric/30 hover:bg-accent/30"
-                                            >
-                                                <span className="font-medium">{exercise.name}</span>
-                                                <Badge
-                                                    variant="outline"
+                                        {exerciseList.map((exercise) => {
+                                            const isSelected = selectedIds.includes(exercise.id);
+                                            return (
+                                                <button
+                                                    key={exercise.id}
+                                                    onClick={() => handleToggle(exercise.id)}
                                                     className={cn(
-                                                        "text-xs",
-                                                        categoryColors[category] || categoryColors.OTHER
+                                                        "w-full flex items-center justify-between rounded-xl border p-3 text-left transition-all duration-200",
+                                                        isSelected
+                                                            ? "border-electric bg-electric/10 shadow-[0_0_15px_-3px_rgba(0,163,255,0.3)]"
+                                                            : "border-border/50 bg-card/50 hover:border-electric/30 hover:bg-accent/30"
                                                     )}
                                                 >
-                                                    {category.replace("_", " ")}
-                                                </Badge>
-                                            </button>
-                                        ))}
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={cn(
+                                                            "flex h-5 w-5 items-center justify-center rounded-md border transition-colors",
+                                                            isSelected ? "bg-electric border-electric text-white" : "border-muted-foreground/30"
+                                                        )}>
+                                                            {isSelected && <Check className="h-3.5 w-3.5" />}
+                                                        </div>
+                                                        <span className="font-medium">{exercise.name}</span>
+                                                    </div>
+                                                    <Badge
+                                                        variant="outline"
+                                                        className={cn(
+                                                            "text-xs",
+                                                            categoryColors[category] || categoryColors.OTHER
+                                                        )}
+                                                    >
+                                                        {category.replace("_", " ")}
+                                                    </Badge>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             ))}
@@ -155,12 +188,20 @@ export function ExercisePicker({ exercises, onSelect, isLoading, children }: Exe
                     )}
                 </ScrollArea>
 
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)}>
+                <DialogFooter className="gap-2 sm:gap-0">
+                    <Button variant="outline" onClick={() => setOpen(false)} className="flex-1 sm:flex-none">
                         Cancel
+                    </Button>
+                    <Button
+                        onClick={handleAddSelected}
+                        disabled={selectedIds.length === 0}
+                        className="btn-electric flex-1 sm:flex-none"
+                    >
+                        Add {selectedIds.length > 0 ? `${selectedIds.length} ` : ""}Exercise{selectedIds.length !== 1 ? "s" : ""}
                     </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
     );
 }
+

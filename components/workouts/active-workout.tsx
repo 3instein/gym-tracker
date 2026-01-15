@@ -77,10 +77,15 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
         ),
     ];
 
-    const handleAddExercise = (exercise: Exercise) => {
-        if (!setsByExercise[exercise.id] && !addedExercises.find((e) => e.id === exercise.id)) {
-            setAddedExercises((prev) => [...prev, exercise]);
-        }
+    const handleAddExercises = (newExercises: Exercise[]) => {
+        setAddedExercises((prev) => {
+            const currentIds = new Set([
+                ...Object.keys(setsByExercise),
+                ...prev.map((e) => e.id),
+            ]);
+            const filteredNew = newExercises.filter((e) => !currentIds.has(e.id));
+            return [...prev, ...filteredNew];
+        });
     };
 
     const handleRemoveExercise = (exerciseId: string) => {
@@ -134,7 +139,7 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <ExercisePicker exercises={exercises} onSelect={handleAddExercise} />
+                    <ExercisePicker exercises={exercises} onSelect={handleAddExercises} />
                 </div>
             </div>
 
@@ -143,7 +148,7 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
             {/* Exercise list */}
             {allExercises.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <ExercisePicker exercises={exercises} onSelect={handleAddExercise}>
+                    <ExercisePicker exercises={exercises} onSelect={handleAddExercises}>
                         <button className="flex h-20 w-20 items-center justify-center rounded-2xl bg-electric/10 mb-4 animate-electric-pulse hover:bg-electric/20 transition-colors cursor-pointer">
                             <Plus className="h-10 w-10 text-electric" />
                         </button>
