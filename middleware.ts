@@ -15,8 +15,8 @@ export function middleware(request: NextRequest) {
 
     // Check for session cookie (NextAuth v5)
     const sessionToken =
-        request.cookies.get("authjs.session-token") ||
-        request.cookies.get("__Secure-authjs.session-token");
+        request.cookies.get("gym-tracker.session-token") ||
+        request.cookies.get("__Secure-gym-tracker.session-token");
 
     const isLoggedIn = !!sessionToken;
     const isOnLoginPage = pathname === "/login";

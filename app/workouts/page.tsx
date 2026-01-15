@@ -26,9 +26,9 @@ export default async function WorkoutsPage() {
     const workouts = await getWorkouts();
 
     // Serialize workouts for client components
-    const serializedWorkouts = workouts.map((w) => ({
+    const serializedWorkouts = workouts.map((w: any) => ({
         ...w,
-        sets: w.sets.map((s) => ({
+        sets: w.sets.map((s: any) => ({
             ...s,
             weight: s.weight.toString(),
         })),
@@ -80,7 +80,7 @@ export default async function WorkoutsPage() {
                         </Card>
                     ) : (
                         <div className="space-y-3">
-                            {serializedWorkouts.map((workout) => (
+                            {serializedWorkouts.map((workout: any) => (
                                 <WorkoutCard
                                     key={workout.id}
                                     workout={workout}
