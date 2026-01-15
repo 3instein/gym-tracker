@@ -2,18 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { Clock } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TimerProps {
     startTime: Date;
 }
 
 export function Timer({ startTime }: TimerProps) {
-    const [elapsed, setElapsed] = useState(0);
+    const [elapsed, setElapsed] = useState<number | null>(null);
 
     useEffect(() => {
-        const interval = setInterval(() => {
+        const update = () => {
             setElapsed(Math.floor((Date.now() - new Date(startTime).getTime()) / 1000));
-        }, 1000);
+        };
+
+        // Update immediately
+        update();
+
+        const interval = setInterval(update, 1000);
 
         return () => clearInterval(interval);
     }, [startTime]);
@@ -28,6 +34,10 @@ export function Timer({ startTime }: TimerProps) {
         }
         return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
+
+    if (elapsed === null) {
+        return <Skeleton className="h-8 w-24 rounded-full" />;
+    }
 
     return (
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-electric/10 text-electric border border-electric/20 font-mono text-sm font-medium animate-pulse">
