@@ -152,8 +152,51 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
                         <span>{format(new Date(workout.date), "EEEE, MMMM d, yyyy")}</span>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                     <ExercisePicker exercises={exercises} onSelect={handleAddExercises} />
+                    <Button
+                        onClick={handleCompleteWorkout}
+                        disabled={isPending || workout.sets.length === 0}
+                        className="font-semibold btn-electric"
+                    >
+                        {isPending ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <Check className="mr-2 h-4 w-4" />
+                        )}
+                        Complete
+                    </Button>
+
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button
+                                variant="outline"
+                                disabled={isPending}
+                                className="border-destructive/50 text-destructive hover:bg-destructive/10"
+                            >
+                                <X className="mr-2 h-4 w-4" />
+                                Cancel
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Cancel workout?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This will delete the current workout and all logged sets. This
+                                    action cannot be undone.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Keep Workout</AlertDialogCancel>
+                                <AlertDialogAction
+                                    onClick={handleCancelWorkout}
+                                    className="bg-destructive hover:bg-destructive/90"
+                                >
+                                    Yes, Cancel Workout
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </div>
             </div>
 
@@ -213,53 +256,6 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
                 </div>
             )}
 
-
-            {/* Action buttons */}
-            <div className="flex gap-3 pt-4">
-                <Button
-                    onClick={handleCompleteWorkout}
-                    disabled={isPending || workout.sets.length === 0}
-                    className="flex-1 h-12 text-base font-semibold btn-electric"
-                >
-                    {isPending ? (
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    ) : (
-                        <Check className="mr-2 h-5 w-5" />
-                    )}
-                    Complete Workout
-                </Button>
-
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button
-                            variant="outline"
-                            disabled={isPending}
-                            className="h-12 px-6 border-destructive/50 text-destructive hover:bg-destructive/10"
-                        >
-                            <X className="mr-2 h-4 w-4" />
-                            Cancel
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Cancel workout?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This will delete the current workout and all logged sets. This
-                                action cannot be undone.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Keep Workout</AlertDialogCancel>
-                            <AlertDialogAction
-                                onClick={handleCancelWorkout}
-                                className="bg-destructive hover:bg-destructive/90"
-                            >
-                                Yes, Cancel Workout
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </div>
         </div>
     );
 }
