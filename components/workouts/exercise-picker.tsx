@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
     Dialog,
     DialogContent,
@@ -28,6 +27,7 @@ interface ExercisePickerProps {
     exercises: Exercise[];
     onSelect: (exercise: Exercise) => void;
     isLoading?: boolean;
+    children?: React.ReactNode;
 }
 
 const categoryColors: Record<string, string> = {
@@ -43,7 +43,7 @@ const categoryColors: Record<string, string> = {
     OTHER: "bg-gray-500/20 text-gray-400 border-gray-500/30",
 };
 
-export function ExercisePicker({ exercises, onSelect, isLoading }: ExercisePickerProps) {
+export function ExercisePicker({ exercises, onSelect, isLoading, children }: ExercisePickerProps) {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
 
@@ -70,14 +70,18 @@ export function ExercisePicker({ exercises, onSelect, isLoading }: ExercisePicke
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="btn-electric" disabled={isLoading}>
-                    {isLoading ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                        <Plus className="mr-2 h-4 w-4" />
-                    )}
-                    Add Exercise
-                </Button>
+                {children ? (
+                    children
+                ) : (
+                    <Button className="btn-electric" disabled={isLoading}>
+                        {isLoading ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <Plus className="mr-2 h-4 w-4" />
+                        )}
+                        Add Exercise
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px] border-border/50 bg-card/95 backdrop-blur-xl">
                 <DialogHeader>

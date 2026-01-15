@@ -143,9 +143,11 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
             {/* Exercise list */}
             {allExercises.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-electric/10 mb-4 animate-electric-pulse">
-                        <Plus className="h-10 w-10 text-electric" />
-                    </div>
+                    <ExercisePicker exercises={exercises} onSelect={handleAddExercise}>
+                        <button className="flex h-20 w-20 items-center justify-center rounded-2xl bg-electric/10 mb-4 animate-electric-pulse hover:bg-electric/20 transition-colors cursor-pointer">
+                            <Plus className="h-10 w-10 text-electric" />
+                        </button>
+                    </ExercisePicker>
                     <h3 className="text-xl font-semibold mb-2">Add your first exercise</h3>
                     <p className="text-muted-foreground mb-4">
                         Click the button above to start logging sets
