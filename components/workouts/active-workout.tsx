@@ -21,6 +21,7 @@ import { completeWorkout, deleteWorkout } from "@/lib/actions/workouts";
 import { ExercisePicker } from "./exercise-picker";
 import { SetLogger } from "./set-logger";
 import { Timer } from "./timer";
+import { RestTimer } from "./rest-timer";
 
 import { MuscleFilter, type Category } from "./muscle-filter";
 
@@ -256,6 +257,8 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
                 </div>
             )}
 
+            {/* Fixed Rest Timer */}
+            <RestTimer className="fixed bottom-6 right-6 z-50 w-72 shadow-2xl ring-1 ring-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" />
         </div>
     );
 }
