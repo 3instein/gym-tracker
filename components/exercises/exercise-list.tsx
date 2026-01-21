@@ -29,6 +29,10 @@ interface Exercise {
     name: string;
     category: string;
     description: string | null;
+    stats?: {
+        maxWeight: number;
+        maxReps: number;
+    };
 }
 
 interface ExerciseListProps {
@@ -192,8 +196,35 @@ export function ExerciseList({ exercises, currentUserId }: ExerciseListProps) {
                                                 >
                                                     {exercise.category.replace("_", " ")}
                                                 </Badge>
+
+                                                <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-border/50">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Max Weight</span>
+                                                        <span className="text-sm font-bold tabular-nums">
+                                                            {Number(exercise.stats?.maxWeight) > 0 ? (
+                                                                <>
+                                                                    {exercise.stats?.maxWeight}
+                                                                    <span className="text-[10px] font-normal text-muted-foreground ml-0.5">kg</span>
+                                                                </>
+                                                            ) : (
+                                                                <span className="text-muted-foreground/50">N/A</span>
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Max Reps</span>
+                                                        <span className="text-sm font-bold tabular-nums">
+                                                            {Number(exercise.stats?.maxReps) > 0 ? (
+                                                                exercise.stats?.maxReps
+                                                            ) : (
+                                                                <span className="text-muted-foreground/50">N/A</span>
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
                                                 {exercise.description && (
-                                                    <p className="text-sm text-muted-foreground line-clamp-2">
+                                                    <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
                                                         {exercise.description}
                                                     </p>
                                                 )}

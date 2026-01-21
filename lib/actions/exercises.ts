@@ -18,9 +18,35 @@ export async function getExercises() {
     if (!session?.user?.id) throw new Error("Unauthorized");
 
     // Fetch all exercises (public access)
-    return prisma.exercise.findMany({
+    const exercises = await prisma.exercise.findMany({
         orderBy: [{ category: "asc" }, { name: "asc" }],
     });
+
+    // Fetch stats for the current user
+    const stats = await prisma.set.groupBy({
+        by: ['exerciseId'],
+        where: {
+            workoutSession: {
+                userId: session.user.id
+            }
+        },
+        _max: {
+            weight: true,
+            reps: true
+        }
+    });
+
+    // Create a map for faster lookup
+    const statsMap = new Map(stats.map(s => [s.exerciseId, {
+        maxWeight: Number(s._max.weight) || 0,
+        maxReps: s._max.reps || 0
+    }]));
+
+    // Combine data
+    return exercises.map(exercise => ({
+        ...exercise,
+        stats: statsMap.get(exercise.id) || { maxWeight: 0, maxReps: 0 }
+    }));
 }
 
 export async function getExercisesByCategory(category: string) {
