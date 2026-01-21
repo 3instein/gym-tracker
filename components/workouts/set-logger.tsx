@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Minus, Trash2, Loader2, Check } from "lucide-react";
 import { quickAddSet, deleteSet, getLastSetForExercise } from "@/lib/actions/sets";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Exercise {
     id: string;
@@ -105,6 +106,7 @@ export function SetLogger({
                 });
             } catch (error) {
                 console.error("Failed to add set:", error);
+                toast.error("Failed to add set");
             }
         });
     };
@@ -115,6 +117,7 @@ export function SetLogger({
                 await deleteSet({ id: setId });
             } catch (error) {
                 console.error("Failed to delete set:", error);
+                toast.error("Failed to delete set");
             }
         });
     };

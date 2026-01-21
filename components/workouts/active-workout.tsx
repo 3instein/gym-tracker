@@ -24,6 +24,7 @@ import { Timer } from "./timer";
 import { RestTimer } from "./rest-timer";
 
 import { MuscleFilter, type Category } from "./muscle-filter";
+import { toast } from "sonner";
 
 interface Exercise {
     id: string;
@@ -120,8 +121,10 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
                     duration: Math.max(1, duration), // Ensure at least 1 minute
                 });
                 router.push("/workouts");
+                toast.success("Workout completed!");
             } catch (error) {
                 console.error("Failed to complete workout:", error);
+                toast.error("Failed to complete workout");
             }
         });
     };
@@ -131,8 +134,10 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
             try {
                 await deleteWorkout({ id: workout.id });
                 router.push("/");
+                toast.success("Workout cancelled");
             } catch (error) {
                 console.error("Failed to cancel workout:", error);
+                toast.error("Failed to cancel workout");
             }
         });
     };

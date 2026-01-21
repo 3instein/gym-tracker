@@ -24,6 +24,7 @@ import { Plus, Loader2, Pencil } from "lucide-react";
 import { createExercise, updateExercise } from "@/lib/actions/exercises";
 import { type Category } from "@/lib/validations/exercise";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const categories: { value: Category; label: string }[] = [
     { value: "CHEST", label: "Chest" },
@@ -83,8 +84,10 @@ export function ExerciseForm({ exercise, onSuccess, triggerClassName }: Exercise
                 setCategory("CHEST");
                 setDescription("");
                 onSuccess?.();
+                toast.success(isEditing ? "Exercise updated successfully" : "Exercise created successfully");
             } catch (error) {
                 console.error("Failed to save exercise:", error);
+                toast.error("Failed to save exercise");
             }
         });
     };

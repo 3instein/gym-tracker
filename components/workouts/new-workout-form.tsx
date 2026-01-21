@@ -12,6 +12,7 @@ import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
 import { DatePicker } from "@/components/ui/date-picker";
+import { toast } from "sonner";
 
 interface NewWorkoutFormProps {
     className?: string;
@@ -35,8 +36,10 @@ export function NewWorkoutForm({ className }: NewWorkoutFormProps) {
                     date: format(date, "yyyy-MM-dd"),
                 });
                 router.push(`/workouts/${workout.id}`);
+                toast.success("Workout started!");
             } catch (error) {
                 console.error("Failed to create workout:", error);
+                toast.error("Failed to create workout");
             }
         });
     };
