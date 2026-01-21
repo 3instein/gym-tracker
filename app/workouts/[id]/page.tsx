@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getWorkout } from "@/lib/actions/workouts";
 import { getExercises } from "@/lib/actions/exercises";
+import { ExportWorkoutButton } from "@/components/workouts/export-workout-button";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { ActiveWorkout } from "@/components/workouts/active-workout";
@@ -41,6 +42,7 @@ export default async function WorkoutPage({ params }: WorkoutPageProps) {
                 <Header
                     user={session?.user}
                     title={isActive ? "Active Workout" : workout.name || "Workout Details"}
+                    actions={<ExportWorkoutButton workout={serializedWorkout} />}
                 />
                 <main className="p-6">
                     {isActive ? (
