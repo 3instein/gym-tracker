@@ -13,13 +13,22 @@ import {
     type CompleteWorkoutInput,
     type DeleteWorkoutInput,
 } from "@/lib/validations/workout";
+import { checkPartnerAccess } from "./partners";
 
-export async function getWorkouts(limit?: number) {
+export async function getWorkouts(limit?: number, userId?: string) {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
 
+    let targetUserId = session.user.id;
+
+    if (userId && userId !== session.user.id) {
+        const hasAccess = await checkPartnerAccess(userId);
+        if (!hasAccess) throw new Error("Unauthorized access to partner data");
+        targetUserId = userId;
+    }
+
     return prisma.workoutSession.findMany({
-        where: { userId: session.user.id },
+        where: { userId: targetUserId },
         orderBy: { date: "desc" },
         take: limit,
         include: {
@@ -36,8 +45,8 @@ export async function getWorkout(id: string) {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
 
-    return prisma.workoutSession.findFirst({
-        where: { id, userId: session.user.id },
+    const workout = await prisma.workoutSession.findUnique({
+        where: { id },
         include: {
             sets: {
                 include: { exercise: true },
@@ -45,6 +54,15 @@ export async function getWorkout(id: string) {
             },
         },
     });
+
+    if (!workout) return null;
+
+    if (workout.userId !== session.user.id) {
+        const hasAccess = await checkPartnerAccess(workout.userId);
+        if (!hasAccess) throw new Error("Unauthorized access to partner workout");
+    }
+
+    return workout;
 }
 
 export async function getActiveWorkout() {
@@ -155,17 +173,25 @@ export async function deleteWorkout(data: DeleteWorkoutInput) {
     revalidatePath("/workouts");
 }
 
-export async function getWorkoutStats() {
+export async function getWorkoutStats(userId?: string) {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
 
+    let targetUserId = session.user.id;
+
+    if (userId && userId !== session.user.id) {
+        const hasAccess = await checkPartnerAccess(userId);
+        if (!hasAccess) throw new Error("Unauthorized access to partner data");
+        targetUserId = userId;
+    }
+
     const [totalWorkouts, thisWeekWorkouts, totalSets] = await Promise.all([
         prisma.workoutSession.count({
-            where: { userId: session.user.id, status: "COMPLETED" },
+            where: { userId: targetUserId, status: "COMPLETED" },
         }),
         prisma.workoutSession.count({
             where: {
-                userId: session.user.id,
+                userId: targetUserId,
                 status: "COMPLETED",
                 date: {
                     gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
@@ -174,7 +200,7 @@ export async function getWorkoutStats() {
         }),
         prisma.set.count({
             where: {
-                workoutSession: { userId: session.user.id },
+                workoutSession: { userId: targetUserId },
             },
         }),
     ]);

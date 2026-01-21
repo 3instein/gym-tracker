@@ -11,23 +11,32 @@ import {
     type UpdateExerciseInput,
     type DeleteExerciseInput,
 } from "@/lib/validations/exercise";
+import { checkPartnerAccess } from "./partners";
 
-export async function getExercises() {
+export async function getExercises(userId?: string) {
     // We still check for session to ensure the user is logged in
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
+
+    let targetUserId = session.user.id;
+
+    if (userId && userId !== session.user.id) {
+        const hasAccess = await checkPartnerAccess(userId);
+        if (!hasAccess) throw new Error("Unauthorized access to partner data");
+        targetUserId = userId;
+    }
 
     // Fetch all exercises (public access)
     const exercises = await prisma.exercise.findMany({
         orderBy: [{ category: "asc" }, { name: "asc" }],
     });
 
-    // Fetch stats for the current user
+    // Fetch stats for the target user (self or partner)
     const stats = await prisma.set.groupBy({
         by: ['exerciseId'],
         where: {
             workoutSession: {
-                userId: session.user.id
+                userId: targetUserId
             }
         },
         _max: {

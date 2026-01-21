@@ -12,6 +12,7 @@ import {
     Menu,
     X,
     TrendingUp,
+    Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -20,6 +21,7 @@ const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/exercises", label: "Exercises", icon: Dumbbell },
     { href: "/workouts", label: "Workouts", icon: History },
+    { href: "/partners", label: "Partners", icon: Users },
     { href: "/settings", label: "Settings", icon: Settings },
 ];
 

@@ -26,6 +26,24 @@ model User {
     // Gym tracker relations
     exercises       Exercise[]
     workoutSessions WorkoutSession[]
+
+    // Partner relations
+    partners  Partner[] @relation("UserPartners")
+    partnerOf Partner[] @relation("PartnerOfUser")
+}
+
+model Partner {
+    id        String   @id @default(cuid())
+    userId    String
+    partnerId String
+    createdAt DateTime @default(now())
+
+    user    User @relation("UserPartners", fields: [userId], references: [id], onDelete: Cascade)
+    partner User @relation("PartnerOfUser", fields: [partnerId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, partnerId])
+    @@index([userId])
+    @@index([partnerId])
 }
 
 model Account {

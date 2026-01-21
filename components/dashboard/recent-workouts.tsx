@@ -32,6 +32,7 @@ interface Workout {
 
 interface RecentWorkoutsProps {
     workouts: Workout[];
+    viewAllLink?: string;
 }
 
 const categoryColors: Record<string, string> = {
@@ -47,7 +48,7 @@ const categoryColors: Record<string, string> = {
     OTHER: "bg-gray-500/20 text-gray-400 border-gray-500/30",
 };
 
-export function RecentWorkouts({ workouts }: RecentWorkoutsProps) {
+export function RecentWorkouts({ workouts, viewAllLink = "/workouts" }: RecentWorkoutsProps) {
     // Get unique exercise categories from sets
     const getWorkoutCategories = (sets: Set[]) => {
         const categories = [...new Set(sets.map((s) => s.exercise.category))];
@@ -72,12 +73,15 @@ export function RecentWorkouts({ workouts }: RecentWorkoutsProps) {
                         <p className="text-muted-foreground mb-4">
                             Start your first workout and track your progress
                         </p>
-                        <Button asChild className="btn-electric">
-                            <Link href="/workouts/new">
-                                <Zap className="mr-2 h-4 w-4" />
-                                Start Workout
-                            </Link>
-                        </Button>
+                        {/* Only show start button if it's my own workouts (default link) */}
+                        {viewAllLink === "/workouts" && (
+                            <Button asChild className="btn-electric">
+                                <Link href="/workouts/new">
+                                    <Zap className="mr-2 h-4 w-4" />
+                                    Start Workout
+                                </Link>
+                            </Button>
+                        )}
                     </div>
                 </CardContent>
             </Card>
@@ -92,7 +96,7 @@ export function RecentWorkouts({ workouts }: RecentWorkoutsProps) {
                     Recent Workouts
                 </CardTitle>
                 <Button variant="ghost" size="sm" asChild>
-                    <Link href="/workouts" className="text-electric hover:text-electric-glow">
+                    <Link href={viewAllLink} className="text-electric hover:text-electric-glow">
                         View all
                         <ChevronRight className="ml-1 h-4 w-4" />
                     </Link>
