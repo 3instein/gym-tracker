@@ -50,12 +50,16 @@ export function SetLogger({
     onRemoveExercise,
 }: SetLoggerProps) {
     const [isPending, startTransition] = useTransition();
-    const [reps, setReps] = useState(() =>
-        sets.length > 0 ? sets[sets.length - 1].reps : 10
+    const [reps, setReps] = useState<string>(() =>
+        sets.length > 0 ? String(sets[sets.length - 1].reps) : "10"
     );
-    const [weight, setWeight] = useState(() =>
-        sets.length > 0 ? Number(sets[sets.length - 1].weight) : 0
-    );
+    const [weight, setWeight] = useState<string>(() => {
+        if (sets.length > 0) {
+            const val = Number(sets[sets.length - 1].weight);
+            return val === 0 ? "" : String(val);
+        }
+        return "";
+    });
     const [lastSet, setLastSet] = useState<{ reps: number; weight: number } | null>(null);
 
     // Sync with props during render if the number of sets changes (e.g., set added or deleted)
@@ -64,8 +68,8 @@ export function SetLogger({
         setPrevSetsLength(sets.length);
         if (sets.length > 0) {
             const last = sets[sets.length - 1];
-            setReps(last.reps);
-            setWeight(Number(last.weight));
+            setReps(String(last.reps));
+            setWeight(Number(last.weight) === 0 ? "" : String(last.weight));
         }
     }
 
@@ -79,8 +83,8 @@ export function SetLogger({
                     if (last) {
                         setLastSet({ reps: last.reps, weight: Number(last.weight) });
                         // Only set defaults if user hasn't started logging today
-                        setReps(last.reps);
-                        setWeight(Number(last.weight));
+                        setReps(String(last.reps));
+                        setWeight(Number(last.weight) === 0 ? "" : String(last.weight));
                     }
                 } catch (error) {
                     console.error("Failed to fetch last set:", error);
@@ -96,8 +100,8 @@ export function SetLogger({
                 await quickAddSet({
                     workoutSessionId,
                     exerciseId: exercise.id,
-                    reps,
-                    weight,
+                    reps: Number(reps) || 0,
+                    weight: Number(weight) || 0,
                 });
             } catch (error) {
                 console.error("Failed to add set:", error);
@@ -116,11 +120,17 @@ export function SetLogger({
     };
 
     const adjustReps = (delta: number) => {
-        setReps((prev) => Math.max(0, prev + delta));
+        setReps((prev) => {
+            const val = Math.max(0, (Number(prev) || 0) + delta);
+            return val === 0 ? "" : String(val);
+        });
     };
 
     const adjustWeight = (delta: number) => {
-        setWeight((prev) => Math.max(0, prev + delta));
+        setWeight((prev) => {
+            const val = Math.max(0, (Number(prev) || 0) + delta);
+            return val === 0 ? "" : String(val);
+        });
     };
 
     return (
@@ -211,7 +221,7 @@ export function SetLogger({
                             <Input
                                 type="number"
                                 value={reps}
-                                onChange={(e) => setReps(Math.max(0, parseInt(e.target.value) || 0))}
+                                onChange={(e) => setReps(e.target.value)}
                                 className="h-10 text-center font-semibold input-electric [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                             <Button
@@ -241,7 +251,7 @@ export function SetLogger({
                                 type="number"
                                 step="0.5"
                                 value={weight}
-                                onChange={(e) => setWeight(Math.max(0, parseFloat(e.target.value) || 0))}
+                                onChange={(e) => setWeight(e.target.value)}
                                 className="h-10 text-center font-semibold input-electric [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                             <Button
