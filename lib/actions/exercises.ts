@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import {
     createExerciseSchema,
@@ -46,10 +47,15 @@ export async function getExercises(userId?: string) {
     });
 
     // Create a map for faster lookup
-    const statsMap = new Map(stats.map(s => [s.exerciseId, {
-        maxWeight: Number(s._max.weight) || 0,
-        maxReps: s._max.reps || 0
-    }]));
+    const statsMap = new Map<string, { maxWeight: number; maxReps: number }>(
+        stats.map((s: { exerciseId: string; _max: { weight: Prisma.Decimal | null; reps: number | null } }) => [
+            s.exerciseId,
+            {
+                maxWeight: s._max.weight ? Number(s._max.weight) : 0,
+                maxReps: s._max.reps || 0,
+            },
+        ])
+    );
 
     // Combine data
     return exercises.map(exercise => ({
