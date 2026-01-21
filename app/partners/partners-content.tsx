@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,42 +31,44 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export function PartnersContent() {
-    const [data, setData] = useState<{ myPartners: any[]; accountsIManage: any[] } | null>(null);
+    const queryClient = useQueryClient();
     const [query, setQuery] = useState("");
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [isSearching, setIsSearching] = useState(false);
-    const [isPending, startTransition] = useTransition();
     const [dialogOpen, setDialogOpen] = useState(false);
 
-    // Initial fetch
-    useEffect(() => {
-        let active = true;
-        getPartners()
-            .then((res) => {
-                if (active) setData(res);
-            })
-            .catch((err) => {
-                if (active) toast.error("Failed to load partners");
-            });
-        return () => { active = false; };
-    }, []);
+    // Fetch partners using TanStack Query
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['partners'],
+        queryFn: () => getPartners(),
+    });
 
-    const handleSearch = async (val: string) => {
-        setQuery(val);
-        if (val.length < 3) {
+    // Invite partner mutation
+    const inviteMutation = useMutation({
+        mutationFn: (email: string) => invitePartner(email),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['partners'] });
+            toast.success("Partner added successfully");
+            setDialogOpen(false);
+            setQuery("");
             setSearchResults([]);
-            return;
-        }
-        setIsSearching(true);
-        try {
-            const results = await searchUsers(val);
-            setSearchResults(results);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsSearching(false);
-        }
-    };
+        },
+        onError: (error: Error) => {
+            toast.error(error.message);
+        },
+    });
+
+    // Remove partner mutation
+    const removeMutation = useMutation({
+        mutationFn: (partnerId: string) => removePartner(partnerId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['partners'] });
+            toast.success("Partner removed");
+        },
+        onError: (error: Error) => {
+            toast.error(error.message);
+        },
+    });
 
     const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout>();
 
@@ -88,37 +91,16 @@ export function PartnersContent() {
     };
 
     const handleInvite = (email: string) => {
-        startTransition(async () => {
-            try {
-                await invitePartner(email);
-                toast.success("Partner added successfully");
-                setDialogOpen(false);
-                setQuery("");
-                setSearchResults([]);
-
-                // Refresh list
-                const newData = await getPartners();
-                setData(newData);
-            } catch (error: any) {
-                toast.error(error.message);
-            }
-        });
+        inviteMutation.mutate(email);
     };
 
     const handleRemove = (partnerId: string) => {
-        startTransition(async () => {
-            try {
-                await removePartner(partnerId);
-                toast.success("Partner removed");
-                const newData = await getPartners();
-                setData(newData);
-            } catch (error: any) {
-                toast.error(error.message);
-            }
-        });
+        removeMutation.mutate(partnerId);
     };
 
-    if (!data) return <div className="flex items-center justify-center p-12"><Loader2 className="animate-spin text-muted-foreground" /></div>;
+    if (isLoading) return <div className="flex items-center justify-center p-12"><Loader2 className="animate-spin text-muted-foreground" /></div>;
+    if (error) return <div className="flex items-center justify-center p-12 text-destructive">Failed to load partners</div>;
+    if (!data) return null;
 
     return (
         <div className="space-y-6">
@@ -174,7 +156,7 @@ export function PartnersContent() {
                                             <Button
                                                 size="sm"
                                                 variant="secondary"
-                                                disabled={isPending}
+                                                disabled={inviteMutation.isPending}
                                                 onClick={() => handleInvite(user.email)}
                                             >
                                                 Add

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -76,24 +77,21 @@ export function SetLogger({
 
     // Fetch last set from previous sessions ONLY if we have no sets today
     const isEmpty = sets.length === 0;
+    const { data: lastSetData } = useQuery({
+        queryKey: ['lastSet', exercise.id],
+        queryFn: () => getLastSetForExercise(exercise.id),
+        enabled: isEmpty,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
+
+    // Update state when lastSetData changes
     useEffect(() => {
-        if (isEmpty) {
-            async function fetchLastSet() {
-                try {
-                    const last = await getLastSetForExercise(exercise.id);
-                    if (last) {
-                        setLastSet({ reps: last.reps, weight: Number(last.weight) });
-                        // Only set defaults if user hasn't started logging today
-                        setReps(String(last.reps));
-                        setWeight(Number(last.weight) === 0 ? "" : String(last.weight));
-                    }
-                } catch (error) {
-                    console.error("Failed to fetch last set:", error);
-                }
-            }
-            fetchLastSet();
+        if (lastSetData && isEmpty) {
+            setLastSet({ reps: lastSetData.reps, weight: Number(lastSetData.weight) });
+            setReps(String(lastSetData.reps));
+            setWeight(Number(lastSetData.weight) === 0 ? "" : String(lastSetData.weight));
         }
-    }, [exercise.id, isEmpty]);
+    }, [lastSetData, isEmpty]);
 
     const handleAddSet = () => {
         startTransition(async () => {
