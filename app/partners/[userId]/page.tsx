@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, History, Dumbbell } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
+import { Sidebar } from "@/components/layout/sidebar";
+
 export default async function PartnerDashboardPage({
     params,
 }: {
@@ -43,9 +45,10 @@ export default async function PartnerDashboardPage({
     ]);
 
     // Serialize workouts
-    const serializedWorkouts = workouts.map((w: any) => ({
+    type WorkoutWithSets = Awaited<ReturnType<typeof getWorkouts>>[number];
+    const serializedWorkouts = workouts.map((w: WorkoutWithSets) => ({
         ...w,
-        sets: w.sets.map((s: any) => ({
+        sets: w.sets.map((s) => ({
             ...s,
             weight: s.weight.toString(),
         })),
@@ -53,6 +56,7 @@ export default async function PartnerDashboardPage({
 
     return (
         <div className="flex min-h-screen bg-background">
+            <Sidebar />
             <div className="flex-1 md:ml-64">
                 <Header user={session.user} title={`Viewing ${partnerUser.name}'s Dashboard`} />
                 <main className="p-6 space-y-6">

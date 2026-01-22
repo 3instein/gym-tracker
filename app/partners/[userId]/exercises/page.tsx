@@ -9,6 +9,8 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
+import { Sidebar } from "@/components/layout/sidebar";
+
 export default async function PartnerExercisesPage({
     params,
 }: {
@@ -39,6 +41,7 @@ export default async function PartnerExercisesPage({
 
     return (
         <div className="flex min-h-screen w-full bg-background overflow-x-hidden">
+            <Sidebar />
             <div className="flex-1 md:ml-64 min-w-0">
                 <Header user={session.user} title={`${partnerUser.name}'s Exercises`} />
                 <main className="p-4 sm:p-6 space-y-6">

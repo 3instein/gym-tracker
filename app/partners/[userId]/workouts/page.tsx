@@ -23,6 +23,8 @@ const categoryColors: Record<string, string> = {
     OTHER: "bg-gray-500/20 text-gray-400 border-gray-500/30",
 };
 
+import { Sidebar } from "@/components/layout/sidebar";
+
 export default async function PartnerWorkoutsPage({
     params,
 }: {
@@ -49,11 +51,12 @@ export default async function PartnerWorkoutsPage({
     }
 
     const workouts = await getWorkouts(undefined, userId);
+    type WorkoutWithSets = Awaited<ReturnType<typeof getWorkouts>>[number];
 
     // Serialize workouts for client components
-    const serializedWorkouts = workouts.map((w: any) => ({
+    const serializedWorkouts = workouts.map((w: WorkoutWithSets) => ({
         ...w,
-        sets: w.sets.map((s: any) => ({
+        sets: w.sets.map((s) => ({
             ...s,
             weight: s.weight.toString(),
         })),
@@ -61,6 +64,7 @@ export default async function PartnerWorkoutsPage({
 
     return (
         <div className="flex min-h-screen bg-background">
+            <Sidebar />
             <div className="flex-1 md:ml-64">
                 <Header user={session.user} title={`${partnerUser.name}'s Workouts`} />
                 <main className="p-6 space-y-6">
@@ -97,7 +101,7 @@ export default async function PartnerWorkoutsPage({
                         </Card>
                     ) : (
                         <div className="space-y-3">
-                            {serializedWorkouts.map((workout: any) => (
+                            {serializedWorkouts.map((workout) => (
                                 <WorkoutCard
                                     key={workout.id}
                                     workout={workout}
