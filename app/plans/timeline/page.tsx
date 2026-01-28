@@ -17,7 +17,7 @@ export default async function PlansTimelinePage() {
             <Sidebar />
             <div className="flex-1 md:ml-64 flex flex-col h-full">
                 <Header user={session?.user} title="Workout Plans" />
-                <main className="flex-1 p-4 md:p-6 space-y-6 flex flex-col min-h-0 overflow-hidden">
+                <main className="flex-1 p-4 md:p-6 space-y-6 flex flex-col min-h-0">
                     {/* Header */}
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between shrink-0">
                         <div className="space-y-1">
@@ -42,7 +42,7 @@ export default async function PlansTimelinePage() {
                     </div>
 
                     {/* Weekly Timeline */}
-                    <div className="flex-1 min-h-0 min-w-0">
+                    <div className="flex-1 min-h-0 min-w-0 overflow-hidden">
                         <WeeklyPlanTimeline plans={plans} />
                     </div>
                 </main>
