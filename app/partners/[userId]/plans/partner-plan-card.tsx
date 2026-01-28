@@ -1,7 +1,6 @@
 "use client";
 
 import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,8 +15,8 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Zap, Pencil, Trash2, Loader2, Dumbbell } from "lucide-react";
-import { deletePlan, startWorkoutFromPlan } from "@/lib/actions/plans";
+import { Pencil, Trash2, Dumbbell } from "lucide-react";
+import { deletePlan } from "@/lib/actions/plans";
 import { toast } from "sonner";
 
 interface Exercise {
@@ -59,7 +58,6 @@ const categoryColors: Record<string, string> = {
 };
 
 export function PartnerPlanCard({ plan, userId }: PartnerPlanCardProps) {
-    const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
     const handleDelete = () => {
@@ -70,19 +68,6 @@ export function PartnerPlanCard({ plan, userId }: PartnerPlanCardProps) {
             } catch (error) {
                 console.error("Failed to delete plan:", error);
                 toast.error("Failed to delete plan");
-            }
-        });
-    };
-
-    const handleStartWorkout = () => {
-        startTransition(async () => {
-            try {
-                await startWorkoutFromPlan(plan.id, userId);
-                router.push(`/partners/${userId}/workouts`);
-                toast.success("Workout started from plan!");
-            } catch (error) {
-                console.error("Failed to start workout:", error);
-                toast.error("Failed to start workout");
             }
         });
     };
@@ -175,20 +160,6 @@ export function PartnerPlanCard({ plan, userId }: PartnerPlanCardProps) {
                         ))}
                     </div>
                 )}
-
-                {/* Start workout button */}
-                <Button
-                    onClick={handleStartWorkout}
-                    disabled={isPending}
-                    className="w-full btn-electric cursor-pointer"
-                >
-                    {isPending ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                        <Zap className="mr-2 h-4 w-4" />
-                    )}
-                    Start Workout
-                </Button>
             </CardContent>
         </Card>
     );

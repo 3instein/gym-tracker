@@ -71,7 +71,10 @@ export function ExercisePicker({ exercises, onSelect, isLoading, children }: Exe
     };
 
     const handleAddSelected = () => {
-        const selectedExercises = exercises.filter((e) => selectedIds.includes(e.id));
+        // Map selectedIds to exercises to preserve selection order
+        const selectedExercises = selectedIds
+            .map((id) => exercises.find((e) => e.id === id))
+            .filter((e): e is Exercise => e !== undefined);
         onSelect(selectedExercises);
         setOpen(false);
         setSearch("");
