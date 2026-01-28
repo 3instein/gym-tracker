@@ -6,11 +6,17 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Dumbbell, CalendarDays } from "lucide-react";
 
+interface Exercise {
+    exercise: {
+        category: string;
+    };
+}
+
 interface Plan {
     id: string;
     name: string;
     day: Day | null;
-    exercises: { id: string }[];
+    exercises: Exercise[];
     _count: { exercises: number };
 }
 
@@ -39,6 +45,19 @@ const dayLabels: Record<Day, string> = {
     SUNDAY: "Sun",
 };
 
+const categoryColors: Record<string, string> = {
+    CHEST: "bg-red-500/20 text-red-400",
+    BACK: "bg-blue-500/20 text-blue-400",
+    SHOULDERS: "bg-yellow-500/20 text-yellow-400",
+    BICEPS: "bg-purple-500/20 text-purple-400",
+    TRICEPS: "bg-pink-500/20 text-pink-400",
+    LEGS: "bg-green-500/20 text-green-400",
+    CORE: "bg-orange-500/20 text-orange-400",
+    CARDIO: "bg-cyan-500/20 text-cyan-400",
+    FULL_BODY: "bg-electric/20 text-electric",
+    OTHER: "bg-gray-500/20 text-gray-400",
+};
+
 export function WeeklyPlanTimeline({ plans, partnerId }: WeeklyPlanTimelineProps) {
     // Group plans by day
     const plansByDay = plans.reduce((acc, plan) => {
@@ -60,7 +79,7 @@ export function WeeklyPlanTimeline({ plans, partnerId }: WeeklyPlanTimelineProps
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 md:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-3 md:gap-4">
                     {daysOfWeek.map((day) => {
                         const dayPlans = plansByDay[day] || [];
                         const isToday = new Date().toLocaleDateString("en-US", { weekday: "long" }).toUpperCase() === day;
@@ -69,43 +88,65 @@ export function WeeklyPlanTimeline({ plans, partnerId }: WeeklyPlanTimelineProps
                             <div
                                 key={day}
                                 className={cn(
-                                    "flex flex-col gap-2 p-2 rounded-lg border min-h-[100px] transition-colors",
+                                    "flex flex-col gap-2 p-3 rounded-lg border min-h-[160px] transition-colors",
                                     isToday
                                         ? "bg-electric/10 border-electric/30"
                                         : "bg-card border-border/50 hover:border-electric/20"
                                 )}
                             >
                                 <span className={cn(
-                                    "text-xs font-semibold uppercase tracking-wider",
+                                    "text-sm font-semibold uppercase tracking-wider mb-1",
                                     isToday ? "text-electric" : "text-muted-foreground"
                                 )}>
                                     {dayLabels[day]}
                                 </span>
 
-                                <div className="flex-1 flex flex-col gap-1.5">
+                                <div className="flex-1 flex flex-col gap-2">
                                     {dayPlans.length > 0 ? (
-                                        dayPlans.map((plan) => (
-                                            <Link
-                                                key={plan.id}
-                                                href={partnerId ? `/partners/${partnerId}/plans/${plan.id}` : `/plans/${plan.id}`}
-                                                className="block group"
-                                            >
-                                                <div className="bg-background rounded border border-border/50 p-1.5 hover:border-electric/50 transition-colors shadow-sm">
-                                                    <p className="text-xs font-medium truncate group-hover:text-electric transition-colors">
-                                                        {plan.name}
-                                                    </p>
-                                                    <div className="flex items-center gap-1 mt-0.5">
-                                                        <Dumbbell className="h-3 w-3 text-muted-foreground/70" />
-                                                        <span className="text-[10px] text-muted-foreground">
-                                                            {plan._count.exercises}
-                                                        </span>
+                                        dayPlans.map((plan) => {
+                                            // Extract unique categories (limit to 2-3 to avoid clutter)
+                                            const uniqueCategories = Array.from(
+                                                new Set(plan.exercises.map(e => e.exercise.category))
+                                            ).slice(0, 3);
+
+                                            return (
+                                                <Link
+                                                    key={plan.id}
+                                                    href={partnerId ? `/partners/${partnerId}/plans/${plan.id}` : `/plans/${plan.id}`}
+                                                    className="block group"
+                                                >
+                                                    <div className="bg-background rounded-md border border-border/50 p-2.5 hover:border-electric/50 transition-colors shadow-sm h-full flex flex-col">
+                                                        <p className="font-semibold text-sm truncate group-hover:text-electric transition-colors mb-2">
+                                                            {plan.name}
+                                                        </p>
+
+                                                        {/* Categories */}
+                                                        <div className="flex flex-wrap gap-1 mb-2">
+                                                            {uniqueCategories.map(cat => (
+                                                                <div
+                                                                    key={cat}
+                                                                    className={cn(
+                                                                        "w-1.5 h-1.5 rounded-full",
+                                                                        categoryColors[cat] ? categoryColors[cat].split(" ")[0] : "bg-gray-500/50"
+                                                                    )}
+                                                                    title={cat}
+                                                                />
+                                                            ))}
+                                                        </div>
+
+                                                        <div className="flex items-center gap-1.5 mt-auto text-muted-foreground">
+                                                            <Dumbbell className="h-3 w-3" />
+                                                            <span className="text-xs">
+                                                                {plan._count.exercises} exercises
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </Link>
-                                        ))
+                                                </Link>
+                                            );
+                                        })
                                     ) : (
-                                        <div className="flex-1 flex items-center justify-center">
-                                            <span className="text-[10px] text-muted-foreground/30 font-medium">
+                                        <div className="flex-1 flex items-center justify-center opacity-30">
+                                            <span className="text-xs font-medium uppercase tracking-wide">
                                                 Rest
                                             </span>
                                         </div>
