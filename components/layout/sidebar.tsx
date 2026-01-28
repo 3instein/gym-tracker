@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -59,8 +60,13 @@ export function Sidebar() {
                 <div className="flex h-full flex-col">
                     {/* Logo */}
                     <div className="flex h-16 items-center gap-3 border-b border-border/50 px-6">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-electric shadow-electric-sm">
-                            <Zap className="h-5 w-5 text-background" />
+                        <div className="relative h-10 w-10 overflow-hidden rounded-xl bg-gradient-electric shadow-electric-sm">
+                            <Image
+                                src="/icon-master.png"
+                                alt="GymTracker"
+                                fill
+                                className="object-cover"
+                            />
                         </div>
                         <span className="text-xl font-bold text-gradient-electric">
                             GymTracker

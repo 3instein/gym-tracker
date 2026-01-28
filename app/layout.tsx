@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   keywords: ["gym", "workout", "fitness", "tracker", "exercise", "training", "bodybuilding", "strength"],
   authors: [{ name: "GymTracker Team" }],
   creator: "GymTracker",
+  icons: {
+    icon: "/icon-master.png",
+  },
 };
 
 export default function RootLayout({
