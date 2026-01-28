@@ -26,6 +26,7 @@ model User {
     // Gym tracker relations
     exercises       Exercise[]
     workoutSessions WorkoutSession[]
+    workoutPlans    WorkoutPlan[]
 
     // Partner relations
     partners  Partner[] @relation("UserPartners")
@@ -96,8 +97,9 @@ model Exercise {
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
 
-    user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-    sets Set[]
+    user             User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    sets             Set[]
+    workoutPlanItems WorkoutPlanExercise[]
 
     @@unique([userId, name])
     @@index([userId])
@@ -142,6 +144,35 @@ model Set {
 
     @@index([workoutSessionId])
     @@index([exerciseId])
+}
+
+/// A workout plan template that users can reuse
+model WorkoutPlan {
+    id          String   @id @default(cuid())
+    userId      String
+    name        String
+    description String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    exercises WorkoutPlanExercise[]
+
+    @@index([userId])
+}
+
+/// Exercises included in a workout plan
+model WorkoutPlanExercise {
+    id            String @id @default(cuid())
+    workoutPlanId String
+    exerciseId    String
+    order         Int // Order of exercise in the plan
+
+    workoutPlan WorkoutPlan @relation(fields: [workoutPlanId], references: [id], onDelete: Cascade)
+    exercise    Exercise    @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+    @@unique([workoutPlanId, exerciseId])
+    @@index([workoutPlanId])
 }
 
 // ============================================
