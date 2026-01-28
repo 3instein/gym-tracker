@@ -14,8 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DraggableDataItem, DraggableData, dataToPromptText, ExerciseData, WorkoutData, PlanData } from "./draggable-data-item";
 import { PromptDropZone } from "./prompt-drop-zone";
 import { AIResponse } from "./ai-response";
-import { sendPromptToOllama } from "@/lib/actions/ai";
-import { Send, Trash2, Dumbbell, Calendar, ClipboardList } from "lucide-react";
+import { sendPromptToOllama, generateUserAnalysis } from "@/lib/actions/ai";
+import { Send, Trash2, Dumbbell, Calendar, ClipboardList, Activity } from "lucide-react";
 import { Category } from "@prisma/client";
 import { cn } from "@/lib/utils";
 
@@ -109,6 +109,23 @@ export function AIAssistant({ exercises, workouts, plans }: AIAssistantProps) {
                 setResponse(result.response);
             } else {
                 setError(result.error);
+            }
+        });
+    };
+
+    const handleAnalyze = () => {
+        if (isPending) return;
+
+        setPrompt("Analyzing your gym data...");
+        setError(null);
+        startTransition(async () => {
+            const result = await generateUserAnalysis();
+            if (result.success) {
+                setResponse(result.response);
+                setPrompt(""); // Clear the "Analyzing..." message
+            } else {
+                setError(result.error);
+                setPrompt("");
             }
         });
     };
@@ -287,6 +304,16 @@ export function AIAssistant({ exercises, workouts, plans }: AIAssistantProps) {
                                 </p>
                             </div>
                             <div className="flex gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleAnalyze}
+                                    disabled={isPending}
+                                    className="cursor-pointer border-electric/50 hover:bg-electric/10 hover:text-electric"
+                                >
+                                    <Activity className="h-4 w-4 mr-1" />
+                                    Analyze My Week
+                                </Button>
                                 <Button
                                     variant="outline"
                                     size="sm"

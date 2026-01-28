@@ -4,6 +4,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import ReactMarkdown from "react-markdown";
+
 interface AIResponseProps {
     response: string | null;
     error: string | null;
@@ -64,7 +66,20 @@ export function AIResponse({ response, error, isLoading }: AIResponseProps) {
                 "prose-p:text-foreground prose-headings:text-foreground",
                 "prose-strong:text-foreground prose-code:text-primary"
             )}>
-                <p className="whitespace-pre-wrap">{response}</p>
+                <ReactMarkdown
+                    components={{
+                        h1: ({ ...props }) => <h1 className="text-2xl font-bold mt-6 mb-4" {...props} />,
+                        h2: ({ ...props }) => <h2 className="text-xl font-bold mt-6 mb-3" {...props} />,
+                        h3: ({ ...props }) => <h3 className="text-lg font-semibold mt-4 mb-2" {...props} />,
+                        p: ({ ...props }) => <p className="mb-4 leading-relaxed last:mb-0" {...props} />,
+                        ul: ({ ...props }) => <ul className="list-disc pl-6 mb-4 space-y-2" {...props} />,
+                        ol: ({ ...props }) => <ol className="list-decimal pl-6 mb-4 space-y-2" {...props} />,
+                        li: ({ ...props }) => <li className="pl-1 leading-relaxed" {...props} />,
+                        strong: ({ ...props }) => <strong className="font-bold text-electric" {...props} />,
+                    }}
+                >
+                    {response}
+                </ReactMarkdown>
             </div>
         </div>
     );
