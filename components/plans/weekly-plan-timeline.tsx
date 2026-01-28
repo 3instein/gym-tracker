@@ -71,7 +71,7 @@ export function WeeklyPlanTimeline({ plans, partnerId }: WeeklyPlanTimelineProps
     }, {} as Record<Day, Plan[]>);
 
     return (
-        <div className="flex flex-col h-[calc(100vh-220px)] min-h-[500px] w-full">
+        <div className="flex flex-col h-[75vh] min-h-[500px] w-full">
             {/* Header */}
             <div className="flex items-center gap-2 mb-4 shrink-0">
                 <CalendarDays className="h-5 w-5 text-electric" />
