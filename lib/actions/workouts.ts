@@ -238,7 +238,7 @@ export async function duplicateWorkout(id: string) {
             userId: session.user.id,
             sets: {
                 createMany: {
-                    data: workout.sets.map((set: any) => ({
+                    data: workout.sets.map((set) => ({
                         exerciseId: set.exerciseId,
                         setNumber: set.setNumber,
                         reps: set.reps,

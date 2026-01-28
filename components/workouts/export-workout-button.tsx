@@ -5,8 +5,29 @@ import { Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+interface SerializedSet {
+    exerciseId: string;
+    exercise: {
+        name: string;
+    };
+    setNumber: number;
+    reps: number;
+    weight: string;
+    isWarmup: boolean;
+    notes: string | null;
+}
+
+interface SerializedWorkout {
+    id: string;
+    name: string | null;
+    date: Date | string;
+    duration: number | null;
+    notes: string | null;
+    sets: SerializedSet[];
+}
+
 interface ExportWorkoutButtonProps {
-    workout: any; // Using any here to match the serialized type, assuming it's passed from the page
+    workout: SerializedWorkout;
 }
 
 export function ExportWorkoutButton({ workout }: ExportWorkoutButtonProps) {
@@ -31,7 +52,7 @@ export function ExportWorkoutButton({ workout }: ExportWorkoutButtonProps) {
             lines.push("\n## Exercise Log");
 
             // Group sets by exercise
-            const setsByExercise = workout.sets.reduce((acc: any, set: any) => {
+            const setsByExercise = workout.sets.reduce((acc: Record<string, { name: string, sets: SerializedSet[] }>, set: SerializedSet) => {
                 if (!acc[set.exerciseId]) {
                     acc[set.exerciseId] = {
                         name: set.exercise.name,
@@ -43,10 +64,10 @@ export function ExportWorkoutButton({ workout }: ExportWorkoutButtonProps) {
             }, {});
 
             // Format exercises
-            Object.values(setsByExercise).forEach((exercise: any) => {
+            Object.values(setsByExercise).forEach((exercise) => {
                 lines.push(`\n### ${exercise.name}`);
-                exercise.sets.forEach((set: any) => {
-                    const weight = set.weight > 0 ? `${set.weight}kg` : "Bodyweight";
+                exercise.sets.forEach((set) => {
+                    const weight = Number(set.weight) > 0 ? `${set.weight}kg` : "Bodyweight";
                     const reps = `${set.reps} reps`;
                     const metrics = [weight, reps];
 

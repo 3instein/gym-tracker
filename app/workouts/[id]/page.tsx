@@ -27,7 +27,7 @@ export default async function WorkoutPage({ params }: WorkoutPageProps) {
     // Serialize workout for client components
     const serializedWorkout = {
         ...workout,
-        sets: workout.sets.map((s: any) => ({
+        sets: workout.sets.map((s) => ({
             ...s,
             weight: s.weight.toString(),
         })),

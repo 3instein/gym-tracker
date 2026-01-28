@@ -129,8 +129,8 @@ export async function getPartners() {
     });
 
     return {
-        myPartners: myPartners.map((p: any) => p.partner),
-        accountsIManage: accountsIManage.map((p: any) => p.user),
+        myPartners: myPartners.map((p) => p.partner),
+        accountsIManage: accountsIManage.map((p) => p.user),
     };
 }
 

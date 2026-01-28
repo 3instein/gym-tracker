@@ -21,9 +21,9 @@ export default async function DashboardPage() {
   ]);
 
   // Serialize workouts for client components (convert Decimal to string)
-  const serializedWorkouts = workouts.map((w: any) => ({
+  const serializedWorkouts = workouts.map((w) => ({
     ...w,
-    sets: w.sets.map((s: any) => ({
+    sets: w.sets.map((s) => ({
       ...s,
       weight: s.weight.toString(),
     })),

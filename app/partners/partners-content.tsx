@@ -33,7 +33,7 @@ import {
 export function PartnersContent() {
     const queryClient = useQueryClient();
     const [query, setQuery] = useState("");
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<Awaited<ReturnType<typeof searchUsers>>>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -145,7 +145,7 @@ export function PartnersContent() {
                                         <div key={user.id} className="flex items-center justify-between p-2 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
                                             <div className="flex items-center gap-3">
                                                 <Avatar className="h-8 w-8">
-                                                    <AvatarImage src={user.image} />
+                                                    <AvatarImage src={user.image || undefined} />
                                                     <AvatarFallback>{user.name?.[0] || "?"}</AvatarFallback>
                                                 </Avatar>
                                                 <div className="flex flex-col">
@@ -178,12 +178,12 @@ export function PartnersContent() {
                             <p className="text-muted-foreground">You haven&apos;t added any partners yet.</p>
                         </div>
                     ) : (
-                        data.myPartners.map((partner: any) => (
+                        data.myPartners.map((partner) => (
                             <Card key={partner.id} className="overflow-hidden">
                                 <CardContent className="p-4 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <Avatar>
-                                            <AvatarImage src={partner.image} />
+                                            <AvatarImage src={partner.image || undefined} />
                                             <AvatarFallback>{partner.name?.[0] || "?"}</AvatarFallback>
                                         </Avatar>
                                         <div>
@@ -233,13 +233,13 @@ export function PartnersContent() {
                             <p className="text-muted-foreground">No one has granted you access yet.</p>
                         </div>
                     ) : (
-                        data.accountsIManage.map((user: any) => (
+                        data.accountsIManage.map((user) => (
                             <Link key={user.id} href={`/partners/${user.id}`} className="block group">
                                 <Card className="overflow-hidden transition-all duration-300 hover:shadow-electric-sm hover:border-electric/50">
                                     <CardContent className="p-6">
                                         <div className="flex items-center justify-between mb-4">
                                             <Avatar className="h-12 w-12 border-2 border-border group-hover:border-electric transition-colors">
-                                                <AvatarImage src={user.image} />
+                                                <AvatarImage src={user.image || undefined} />
                                                 <AvatarFallback>{user.name?.[0] || "?"}</AvatarFallback>
                                             </Avatar>
                                             <div className="h-8 w-8 rounded-full bg-electric/10 flex items-center justify-center text-electric opacity-0 group-hover:opacity-100 transition-opacity">
