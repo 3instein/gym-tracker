@@ -13,6 +13,7 @@ import {
     Menu,
     Users,
     ClipboardList,
+    Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -22,6 +23,7 @@ const navItems = [
     { href: "/exercises", label: "Exercises", icon: Dumbbell },
     { href: "/workouts", label: "Workouts", icon: History },
     { href: "/plans", label: "Plans", icon: ClipboardList },
+    { href: "/ai", label: "AI Assistant", icon: Bot },
     { href: "/partners", label: "Partners", icon: Users },
     { href: "/settings", label: "Settings", icon: Settings },
 ];
