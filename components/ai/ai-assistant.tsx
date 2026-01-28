@@ -194,7 +194,7 @@ export function AIAssistant({ exercises, workouts, plans }: AIAssistantProps) {
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
                 {/* Data Sidebar */}
-                <div className="lg:col-span-1 border rounded-lg bg-card/50 flex flex-col h-full min-h-0">
+                <div className="hidden lg:flex lg:col-span-1 border rounded-lg bg-card/50 flex-col h-full min-h-0">
                     <div className="p-4 border-b shrink-0">
                         <h2 className="font-semibold">Your Gym Data</h2>
                         <p className="text-sm text-muted-foreground mt-1">
@@ -296,7 +296,56 @@ export function AIAssistant({ exercises, workouts, plans }: AIAssistantProps) {
                 {/* Prompt Area */}
                 <div className="lg:col-span-2 flex flex-col gap-4 min-h-0">
                     <div className="border rounded-lg bg-card/50 p-4 flex-1 flex flex-col min-h-0">
-                        <div className="flex items-center justify-between mb-4 shrink-0">
+                        {/* Mobile View: Prominent CTA */}
+                        <div className="lg:hidden mb-4 shrink-0 flex flex-col gap-3">
+                            {!response && !prompt && (
+                                <div className="text-center mb-2 space-y-1">
+                                    <h2 className="font-semibold text-lg">Weekly Review</h2>
+                                    <p className="text-sm text-muted-foreground">
+                                        Get a comprehensive analysis of your progress
+                                    </p>
+                                </div>
+                            )}
+
+                            {(response || prompt) && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleClear}
+                                    className="w-full text-muted-foreground"
+                                >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Clear & Start Over
+                                </Button>
+                            )}
+
+                            <Button
+                                size="lg"
+                                onClick={handleAnalyze}
+                                disabled={isPending}
+                                className={cn(
+                                    "w-full h-14 text-lg font-semibold shadow-lg transition-all",
+                                    "bg-electric text-electric-foreground hover:bg-electric/90",
+                                    "shadow-electric/20"
+                                )}
+                            >
+                                {isPending ? (
+                                    <span className="flex items-center gap-2">
+                                        <Activity className="h-5 w-5 animate-pulse" />
+                                        Analyzing...
+                                    </span>
+                                ) : (
+                                    <span className="flex items-center gap-2">
+                                        <Activity className="h-5 w-5" />
+                                        Analyze My Week
+                                    </span>
+                                )}
+                            </Button>
+
+                        </div>
+
+                        {/* Desktop View: Standard Header */}
+                        <div className="hidden lg:flex items-center justify-between mb-4 shrink-0">
                             <div>
                                 <h2 className="font-semibold">AI Prompt</h2>
                                 <p className="text-sm text-muted-foreground">
@@ -328,7 +377,7 @@ export function AIAssistant({ exercises, workouts, plans }: AIAssistantProps) {
                                     size="sm"
                                     onClick={handleSubmit}
                                     disabled={isPending || !prompt.trim()}
-                                    className="cursor-pointer"
+                                    className="hidden lg:inline-flex cursor-pointer"
                                 >
                                     <Send className="h-4 w-4 mr-1" />
                                     {isPending ? "Sending..." : "Send"}
@@ -336,11 +385,13 @@ export function AIAssistant({ exercises, workouts, plans }: AIAssistantProps) {
                             </div>
                         </div>
 
-                        <PromptDropZone
-                            value={prompt}
-                            onChange={setPrompt}
-                            disabled={isPending}
-                        />
+                        <div className="hidden lg:block">
+                            <PromptDropZone
+                                value={prompt}
+                                onChange={setPrompt}
+                                disabled={isPending}
+                            />
+                        </div>
 
                         <div className="mt-4 flex-1 min-h-0 overflow-auto">
                             <AIResponse
@@ -352,6 +403,6 @@ export function AIAssistant({ exercises, workouts, plans }: AIAssistantProps) {
                     </div>
                 </div>
             </div>
-        </DndContext>
+        </DndContext >
     );
 }

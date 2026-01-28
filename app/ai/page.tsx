@@ -57,6 +57,9 @@ export default async function AIPage() {
                             </h2>
                             <p className="text-muted-foreground">
                                 Ask questions about your gym data. Drag and drop exercises, workouts, or plans.
+                                <span className="block mt-1 text-xs sm:inline sm:mt-0 sm:ml-1 opacity-70">
+                                    (Switch to desktop for full manual prompting)
+                                </span>
                             </p>
                         </div>
                     </div>
