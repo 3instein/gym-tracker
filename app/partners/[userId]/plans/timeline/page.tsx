@@ -39,13 +39,13 @@ export default async function PartnerPlansTimelinePage({
     const plans = await getPlans(userId);
 
     return (
-        <div className="flex min-h-screen bg-background">
+        <div className="flex h-screen bg-background overflow-hidden">
             <Sidebar />
-            <div className="flex-1 md:ml-64">
+            <div className="flex-1 md:ml-64 flex flex-col h-full">
                 <Header user={session.user} title={`${partnerUser.name}'s Plans`} />
-                <main className="p-4 md:p-6 space-y-6">
+                <main className="flex-1 p-4 md:p-6 space-y-6 flex flex-col min-h-0 overflow-hidden">
                     {/* Back button and header */}
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between shrink-0">
                         <div className="flex items-center gap-4">
                             <Link href={`/partners/${userId}`}>
                                 <Button variant="ghost" size="icon" className="cursor-pointer">
@@ -70,10 +70,14 @@ export default async function PartnerPlansTimelinePage({
                         </Button>
                     </div>
 
-                    <PlanTabs partnerId={userId} />
+                    <div className="shrink-0">
+                        <PlanTabs partnerId={userId} />
+                    </div>
 
                     {/* Weekly Timeline */}
-                    <WeeklyPlanTimeline plans={plans} partnerId={userId} />
+                    <div className="flex-1 min-h-0">
+                        <WeeklyPlanTimeline plans={plans} partnerId={userId} />
+                    </div>
                 </main>
             </div>
         </div>

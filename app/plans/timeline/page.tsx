@@ -13,13 +13,13 @@ export default async function PlansTimelinePage() {
     const plans = await getPlans();
 
     return (
-        <div className="flex min-h-screen bg-background">
+        <div className="flex h-screen bg-background overflow-hidden">
             <Sidebar />
-            <div className="flex-1 md:ml-64">
+            <div className="flex-1 md:ml-64 flex flex-col h-full">
                 <Header user={session?.user} title="Workout Plans" />
-                <main className="p-4 md:p-6 space-y-6">
+                <main className="flex-1 p-4 md:p-6 space-y-6 flex flex-col min-h-0 overflow-hidden">
                     {/* Header */}
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between shrink-0">
                         <div className="space-y-1">
                             <h2 className="text-2xl font-bold flex items-center gap-2">
                                 <ClipboardList className="h-6 w-6 text-electric" />
@@ -37,10 +37,14 @@ export default async function PlansTimelinePage() {
                         </Button>
                     </div>
 
-                    <PlanTabs />
+                    <div className="shrink-0">
+                        <PlanTabs />
+                    </div>
 
                     {/* Weekly Timeline */}
-                    <WeeklyPlanTimeline plans={plans} />
+                    <div className="flex-1 min-h-0">
+                        <WeeklyPlanTimeline plans={plans} />
+                    </div>
                 </main>
             </div>
         </div>
