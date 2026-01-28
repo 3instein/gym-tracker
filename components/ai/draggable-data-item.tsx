@@ -13,6 +13,10 @@ export interface ExerciseData {
     id: string;
     name: string;
     category: Category;
+    stats?: {
+        maxWeight: number;
+        maxReps: number;
+    };
 }
 
 export interface WorkoutData {
@@ -20,7 +24,7 @@ export interface WorkoutData {
     id: string;
     name: string | null;
     date: string;
-    exercises: { name: string; sets: number }[];
+    exercises: { name: string; sets: number; maxWeight: number; totalReps: number }[];
 }
 
 export interface PlanData {
@@ -57,7 +61,7 @@ export function DraggableDataItem({ data }: { data: DraggableData }) {
             {...listeners}
             {...attributes}
             className={cn(
-                "flex items-center gap-3 p-3 rounded-lg border bg-card cursor-grab",
+                "flex items-center gap-3 p-3 rounded-lg border bg-card cursor-grab relative overflow-hidden",
                 "hover:bg-accent/50 hover:border-primary/30 transition-all",
                 "select-none touch-none",
                 isDragging && "opacity-50 ring-2 ring-primary"
@@ -68,13 +72,31 @@ export function DraggableDataItem({ data }: { data: DraggableData }) {
                 {data.type === "workout" && <Calendar className="h-4 w-4 text-muted-foreground" />}
                 {data.type === "plan" && <ClipboardList className="h-4 w-4 text-muted-foreground" />}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 pr-16">
                 {data.type === "exercise" && (
                     <>
                         <p className="font-medium text-sm truncate">{data.name}</p>
-                        <Badge variant="outline" className={cn("text-xs mt-1", categoryColors[data.category])}>
-                            {data.category}
-                        </Badge>
+                        <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline" className={cn("text-xs", categoryColors[data.category])}>
+                                {data.category}
+                            </Badge>
+                        </div>
+                        {data.stats && (data.stats.maxWeight > 0 || data.stats.maxReps > 0) && (
+                            <div className="absolute top-2.5 right-3 flex flex-col items-end gap-0">
+                                {data.stats.maxWeight > 0 && (
+                                    <div className="flex items-baseline gap-0.5">
+                                        <span className="text-sm font-bold text-foreground">{data.stats.maxWeight}</span>
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase">kg</span>
+                                    </div>
+                                )}
+                                {data.stats.maxReps > 0 && (
+                                    <div className="flex items-baseline gap-0.5">
+                                        <span className="text-sm font-bold text-foreground">{data.stats.maxReps}</span>
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase">reps</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </>
                 )}
                 {data.type === "workout" && (
@@ -104,10 +126,14 @@ export function DraggableDataItem({ data }: { data: DraggableData }) {
 export function dataToPromptText(data: DraggableData): string {
     switch (data.type) {
         case "exercise":
+            const stats = data.stats;
+            if (stats && (stats.maxWeight > 0 || stats.maxReps > 0)) {
+                return `[Exercise: ${data.name} (${data.category}) - Max Weight: ${stats.maxWeight}kg, Max Reps: ${stats.maxReps}]`;
+            }
             return `[Exercise: ${data.name} (${data.category})]`;
         case "workout":
             const exerciseList = data.exercises
-                .map((e) => `  - ${e.name}: ${e.sets} sets`)
+                .map((e) => `  - ${e.name}: ${e.sets} sets, max ${e.maxWeight}kg, ${e.totalReps} total reps`)
                 .join("\n");
             return `[Workout on ${new Date(data.date).toLocaleDateString()}:\n${exerciseList}]`;
         case "plan":

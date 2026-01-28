@@ -23,6 +23,10 @@ interface Exercise {
     id: string;
     name: string;
     category: Category;
+    stats?: {
+        maxWeight: number;
+        maxReps: number;
+    };
 }
 
 interface Workout {
@@ -30,6 +34,8 @@ interface Workout {
     name: string | null;
     date: Date;
     sets: {
+        weight: number;
+        reps: number;
         exercise: {
             name: string;
         };
@@ -119,6 +125,7 @@ export function AIAssistant({ exercises, workouts, plans }: AIAssistantProps) {
         id: e.id,
         name: e.name,
         category: e.category,
+        stats: e.stats,
     })), [exercises]);
 
     // Filter exercises by category
@@ -130,18 +137,29 @@ export function AIAssistant({ exercises, workouts, plans }: AIAssistantProps) {
     );
 
     const workoutItems: WorkoutData[] = useMemo(() => workouts.map((w) => {
-        const exerciseSets = w.sets.reduce((acc, set) => {
+        // Group sets by exercise and aggregate data
+        const exerciseData = w.sets.reduce((acc, set) => {
             const name = set.exercise.name;
-            acc[name] = (acc[name] || 0) + 1;
+            if (!acc[name]) {
+                acc[name] = { sets: 0, maxWeight: 0, totalReps: 0 };
+            }
+            acc[name].sets += 1;
+            acc[name].maxWeight = Math.max(acc[name].maxWeight, set.weight);
+            acc[name].totalReps += set.reps;
             return acc;
-        }, {} as Record<string, number>);
+        }, {} as Record<string, { sets: number; maxWeight: number; totalReps: number }>);
 
         return {
             type: "workout" as const,
             id: w.id,
             name: w.name,
             date: w.date.toISOString(),
-            exercises: Object.entries(exerciseSets).map(([name, sets]) => ({ name, sets })),
+            exercises: Object.entries(exerciseData).map(([name, data]) => ({
+                name,
+                sets: data.sets,
+                maxWeight: data.maxWeight,
+                totalReps: data.totalReps,
+            })),
         };
     }), [workouts]);
 

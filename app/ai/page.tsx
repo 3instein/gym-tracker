@@ -23,6 +23,8 @@ export default async function AIPage() {
         name: w.name,
         date: w.date,
         sets: w.sets.map((s) => ({
+            weight: Number(s.weight),
+            reps: s.reps,
             exercise: {
                 name: s.exercise.name,
             },
