@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ClipboardList, Plus } from "lucide-react";
 import Link from "next/link";
 import { PlanCard } from "@/components/plans/plan-card";
-import { WeeklyPlanTimeline } from "@/components/plans/weekly-plan-timeline";
+import { PlanTabs } from "@/components/plans/plan-tabs";
 
 export default async function PlansPage() {
     const session = await auth();
@@ -38,8 +38,7 @@ export default async function PlansPage() {
                         </Button>
                     </div>
 
-                    {/* Weekly Timeline */}
-                    {plans.length > 0 && <WeeklyPlanTimeline plans={plans} />}
+                    <PlanTabs />
 
                     {/* Plans list */}
                     {plans.length === 0 ? (

@@ -5,14 +5,13 @@ import { checkPartnerAccess } from "@/lib/actions/partners";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { ClipboardList, Plus, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { PartnerPlanCard } from "./partner-plan-card";
+import { WeeklyPlanTimeline } from "@/components/plans/weekly-plan-timeline";
 import { PlanTabs } from "@/components/plans/plan-tabs";
 
-export default async function PartnerPlansPage({
+export default async function PartnerPlansTimelinePage({
     params,
 }: {
     params: Promise<{ userId: string }>;
@@ -59,7 +58,7 @@ export default async function PartnerPlansPage({
                                     <span className="text-gradient-electric">Workout Plans</span>
                                 </h2>
                                 <p className="text-muted-foreground">
-                                    Manage {partnerUser.name}&apos;s workout plan templates.
+                                    Manage {partnerUser.name}&apos;s weekly workout schedule.
                                 </p>
                             </div>
                         </div>
@@ -73,36 +72,8 @@ export default async function PartnerPlansPage({
 
                     <PlanTabs partnerId={userId} />
 
-                    {/* Plans list */}
-                    {plans.length === 0 ? (
-                        <Card className="card-electric">
-                            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-                                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-electric/10 mb-4">
-                                    <ClipboardList className="h-10 w-10 text-electric animate-glow" />
-                                </div>
-                                <h3 className="text-xl font-semibold mb-2">No plans yet</h3>
-                                <p className="text-muted-foreground mb-6">
-                                    Create a workout plan for {partnerUser.name}
-                                </p>
-                                <Button asChild className="btn-electric cursor-pointer">
-                                    <Link href={`/partners/${userId}/plans/new`}>
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Create First Plan
-                                    </Link>
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {plans.map((plan) => (
-                                <PartnerPlanCard
-                                    key={plan.id}
-                                    plan={plan}
-                                    userId={userId}
-                                />
-                            ))}
-                        </div>
-                    )}
+                    {/* Weekly Timeline */}
+                    <WeeklyPlanTimeline plans={plans} partnerId={userId} />
                 </main>
             </div>
         </div>
