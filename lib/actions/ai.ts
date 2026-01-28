@@ -66,3 +66,33 @@ export async function sendPromptToOllama(prompt: string): Promise<AIResult> {
         return { success: false, error: "An unexpected error occurred" };
     }
 }
+
+export async function generateExerciseDescription(name: string): Promise<AIResult> {
+    const prompt = `Task: Describe the gym exercise "${name}" professionally.
+
+CRITICAL CONSTRAINTS:
+- ABSOLUTELY NO EMOJIS, SYMBOLS, OR GRAPHICS. Use ONLY plain text letters and basic punctuation (periods, commas).
+- DO NOT INCLUDE THE EXERCISE NAME. Skip any titles or headers.
+- NO INTRODUCTORY TEXT (e.g., "This exercise targets...").
+- START IMMEDIATELY with the description.
+- FORMAT: Muscles targeted followed by form tips.
+- LENGTH: Max 200 characters.
+
+Example of BAD output: "✅ Bench Press: targets chest 🏋️"
+Example of GOOD output: "Targets the pectorals and triceps. Drive the weight upward from mid-chest while keeping shoulders retracted."`;
+
+    const result = await sendPromptToOllama(prompt);
+
+    if (result.success) {
+        // Post-processing sanitization as a safety layer
+        const sanitized = result.response
+            .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{1FB00}-\u{1FBFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '') // Remove emojis
+            .replace(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '') // Remove exercise name with escaped regex
+            .replace(/^[:\s\-✅]+/, '') // Remove leading artifacts
+            .trim();
+
+        return { ...result, response: sanitized };
+    }
+
+    return result;
+}
