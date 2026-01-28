@@ -7,7 +7,7 @@ import { RecentWorkouts } from "@/components/dashboard/recent-workouts";
 import { checkPartnerAccess } from "@/lib/actions/partners";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, History, Dumbbell } from "lucide-react";
+import { ArrowLeft, History, Dumbbell, ClipboardList } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
 import { Sidebar } from "@/components/layout/sidebar";
@@ -78,7 +78,7 @@ export default async function PartnerDashboardPage({
 
                     <StatsCards stats={stats} />
 
-                    <div className="grid gap-6 md:grid-cols-2">
+                    <div className="grid gap-6 md:grid-cols-3">
                         <Link href={`/partners/${userId}/workouts`} className="block">
                             <div className="rounded-xl border border-border/50 bg-card p-6 transition-all hover:bg-accent/50 hover:shadow-electric-sm group">
                                 <div className="flex items-center justify-between mb-4">
@@ -102,6 +102,19 @@ export default async function PartnerDashboardPage({
                                 </div>
                                 <h3 className="font-semibold text-lg mb-1">Exercise Stats</h3>
                                 <p className="text-sm text-muted-foreground">Analyze max lifts and volume per exercise.</p>
+                            </div>
+                        </Link>
+
+                        <Link href={`/partners/${userId}/plans`} className="block">
+                            <div className="rounded-xl border border-border/50 bg-card p-6 transition-all hover:bg-accent/50 hover:shadow-electric-sm group">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500">
+                                        <ClipboardList className="h-5 w-5" />
+                                    </div>
+                                    <span className="text-xs font-medium text-muted-foreground group-hover:text-purple-500 transition-colors">View All</span>
+                                </div>
+                                <h3 className="font-semibold text-lg mb-1">Workout Plans</h3>
+                                <p className="text-sm text-muted-foreground">Create and manage workout templates.</p>
                             </div>
                         </Link>
                     </div>

@@ -11,13 +11,22 @@ import {
     type UpdatePlanInput,
     type DeletePlanInput,
 } from "@/lib/validations/plan";
+import { checkPartnerAccess } from "./partners";
 
-export async function getPlans() {
+export async function getPlans(userId?: string) {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
 
+    let targetUserId = session.user.id;
+
+    if (userId && userId !== session.user.id) {
+        const hasAccess = await checkPartnerAccess(userId);
+        if (!hasAccess) throw new Error("Unauthorized access to partner data");
+        targetUserId = userId;
+    }
+
     return prisma.workoutPlan.findMany({
-        where: { userId: session.user.id },
+        where: { userId: targetUserId },
         orderBy: { updatedAt: "desc" },
         include: {
             exercises: {
@@ -29,12 +38,20 @@ export async function getPlans() {
     });
 }
 
-export async function getPlan(id: string) {
+export async function getPlan(id: string, userId?: string) {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
 
+    let targetUserId = session.user.id;
+
+    if (userId && userId !== session.user.id) {
+        const hasAccess = await checkPartnerAccess(userId);
+        if (!hasAccess) throw new Error("Unauthorized access to partner data");
+        targetUserId = userId;
+    }
+
     const plan = await prisma.workoutPlan.findFirst({
-        where: { id, userId: session.user.id },
+        where: { id, userId: targetUserId },
         include: {
             exercises: {
                 include: { exercise: true },
@@ -46,9 +63,17 @@ export async function getPlan(id: string) {
     return plan;
 }
 
-export async function createPlan(data: CreatePlanInput) {
+export async function createPlan(data: CreatePlanInput, targetUserId?: string) {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
+
+    let userId = session.user.id;
+
+    if (targetUserId && targetUserId !== session.user.id) {
+        const hasAccess = await checkPartnerAccess(targetUserId);
+        if (!hasAccess) throw new Error("Unauthorized access to partner data");
+        userId = targetUserId;
+    }
 
     const validated = createPlanSchema.parse(data);
 
@@ -56,7 +81,7 @@ export async function createPlan(data: CreatePlanInput) {
         data: {
             name: validated.name,
             description: validated.description,
-            userId: session.user.id,
+            userId,
             exercises: {
                 create: validated.exerciseIds.map((exerciseId, index) => ({
                     exerciseId,
@@ -73,14 +98,24 @@ export async function createPlan(data: CreatePlanInput) {
     });
 
     revalidatePath("/plans");
+    if (targetUserId) {
+        revalidatePath(`/partners/${targetUserId}/plans`);
+    }
     return plan;
 }
 
-export async function updatePlan(data: UpdatePlanInput) {
+export async function updatePlan(data: UpdatePlanInput, targetUserId?: string) {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
 
-    const userId = session.user.id;
+    let userId = session.user.id;
+
+    if (targetUserId && targetUserId !== session.user.id) {
+        const hasAccess = await checkPartnerAccess(targetUserId);
+        if (!hasAccess) throw new Error("Unauthorized access to partner data");
+        userId = targetUserId;
+    }
+
     const validated = updatePlanSchema.parse(data);
 
     // Build update data
@@ -127,29 +162,52 @@ export async function updatePlan(data: UpdatePlanInput) {
 
     revalidatePath("/plans");
     revalidatePath(`/plans/${validated.id}`);
+    if (targetUserId) {
+        revalidatePath(`/partners/${targetUserId}/plans`);
+        revalidatePath(`/partners/${targetUserId}/plans/${validated.id}`);
+    }
     return plan;
 }
 
-export async function deletePlan(data: DeletePlanInput) {
+export async function deletePlan(data: DeletePlanInput, targetUserId?: string) {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
+
+    let userId = session.user.id;
+
+    if (targetUserId && targetUserId !== session.user.id) {
+        const hasAccess = await checkPartnerAccess(targetUserId);
+        if (!hasAccess) throw new Error("Unauthorized access to partner data");
+        userId = targetUserId;
+    }
 
     const validated = deletePlanSchema.parse(data);
 
     await prisma.workoutPlan.delete({
-        where: { id: validated.id, userId: session.user.id },
+        where: { id: validated.id, userId },
     });
 
     revalidatePath("/plans");
+    if (targetUserId) {
+        revalidatePath(`/partners/${targetUserId}/plans`);
+    }
 }
 
-export async function startWorkoutFromPlan(planId: string) {
+export async function startWorkoutFromPlan(planId: string, targetUserId?: string) {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
 
+    let userId = session.user.id;
+
+    if (targetUserId && targetUserId !== session.user.id) {
+        const hasAccess = await checkPartnerAccess(targetUserId);
+        if (!hasAccess) throw new Error("Unauthorized access to partner data");
+        userId = targetUserId;
+    }
+
     // Get the plan with exercises
     const plan = await prisma.workoutPlan.findFirst({
-        where: { id: planId, userId: session.user.id },
+        where: { id: planId, userId },
         include: {
             exercises: {
                 include: { exercise: true },
@@ -170,12 +228,15 @@ export async function startWorkoutFromPlan(planId: string) {
             name: plan.name,
             date: dateOnly,
             status: "IN_PROGRESS",
-            userId: session.user.id,
+            userId,
         },
     });
 
     revalidatePath("/");
     revalidatePath("/workouts");
+    if (targetUserId) {
+        revalidatePath(`/partners/${targetUserId}/workouts`);
+    }
 
     return {
         workout,
