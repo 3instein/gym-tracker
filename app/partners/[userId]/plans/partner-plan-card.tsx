@@ -87,11 +87,6 @@ export function PartnerPlanCard({ plan, userId }: PartnerPlanCardProps) {
         });
     };
 
-    // Get unique categories from exercises
-    const categories = Array.from(
-        new Set(plan.exercises.map((e) => e.exercise.category))
-    );
-
     return (
         <Card className="card-electric group hover:shadow-electric transition-all duration-300">
             <CardHeader className="pb-3">
@@ -157,22 +152,27 @@ export function PartnerPlanCard({ plan, userId }: PartnerPlanCardProps) {
                     <span>{plan._count.exercises} exercise{plan._count.exercises !== 1 ? "s" : ""}</span>
                 </div>
 
-                {/* Category badges */}
-                {categories.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                        {categories.slice(0, 4).map((category) => (
-                            <span
-                                key={category}
-                                className={`px-2 py-0.5 rounded-full text-xs font-medium ${categoryColors[category] || categoryColors.OTHER}`}
+                {/* Exercise list */}
+                {plan.exercises.length > 0 && (
+                    <div className="space-y-1.5">
+                        {plan.exercises.map((pe, index) => (
+                            <div
+                                key={pe.id}
+                                className="flex items-center gap-2 text-sm"
                             >
-                                {category.replace("_", " ")}
-                            </span>
+                                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-electric/10 text-electric text-xs font-medium shrink-0">
+                                    {index + 1}
+                                </span>
+                                <span className="truncate text-muted-foreground">
+                                    {pe.exercise.name}
+                                </span>
+                                <span
+                                    className={`ml-auto px-1.5 py-0.5 rounded text-[10px] font-medium shrink-0 ${categoryColors[pe.exercise.category] || categoryColors.OTHER}`}
+                                >
+                                    {pe.exercise.category.replace("_", " ")}
+                                </span>
+                            </div>
                         ))}
-                        {categories.length > 4 && (
-                            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                                +{categories.length - 4} more
-                            </span>
-                        )}
                     </div>
                 )}
 
