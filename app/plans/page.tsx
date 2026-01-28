@@ -17,7 +17,7 @@ export default async function PlansPage() {
             <Sidebar />
             <div className="flex-1 md:ml-64">
                 <Header user={session?.user} title="Workout Plans" />
-                <main className="p-6 space-y-6">
+                <main className="p-4 md:p-6 space-y-6">
                     {/* Header */}
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="space-y-1">

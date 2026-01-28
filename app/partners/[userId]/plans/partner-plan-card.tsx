@@ -75,8 +75,8 @@ export function PartnerPlanCard({ plan, userId }: PartnerPlanCardProps) {
     return (
         <Card className="card-electric group hover:shadow-electric transition-all duration-300">
             <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                    <div className="space-y-1">
+                <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1 flex-1 min-w-0">
                         <CardTitle className="text-lg font-semibold text-gradient-electric">
                             {plan.name}
                         </CardTitle>
@@ -86,7 +86,7 @@ export function PartnerPlanCard({ plan, userId }: PartnerPlanCardProps) {
                             </p>
                         )}
                     </div>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         <Button
                             variant="ghost"
                             size="icon"

@@ -43,7 +43,7 @@ export default async function PartnerPlansPage({
             <Sidebar />
             <div className="flex-1 md:ml-64">
                 <Header user={session.user} title={`${partnerUser.name}'s Plans`} />
-                <main className="p-6 space-y-6">
+                <main className="p-4 md:p-6 space-y-6">
                     {/* Back button and header */}
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center gap-4">
