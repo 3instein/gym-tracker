@@ -18,6 +18,7 @@ import {
 import { Pencil, Trash2, Dumbbell } from "lucide-react";
 import { deletePlan } from "@/lib/actions/plans";
 import { toast } from "sonner";
+import { Day } from "@prisma/client";
 
 interface Exercise {
     id: string;
@@ -36,6 +37,7 @@ interface Plan {
     name: string;
     description: string | null;
     exercises: PlanExercise[];
+    day: Day | null;
     _count: { exercises: number };
 }
 
@@ -84,6 +86,11 @@ export function PartnerPlanCard({ plan, userId }: PartnerPlanCardProps) {
                             <p className="text-sm text-muted-foreground line-clamp-2">
                                 {plan.description}
                             </p>
+                        )}
+                        {plan.day && (
+                            <span className="inline-block px-2 py-0.5 rounded-md bg-electric/10 text-electric text-xs font-medium mt-1">
+                                {plan.day.charAt(0) + plan.day.slice(1).toLowerCase()}
+                            </span>
                         )}
                     </div>
                     <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">

@@ -13,6 +13,14 @@ import { ExercisePicker } from "@/components/workouts/exercise-picker";
 import { PlanExerciseList } from "./plan-exercise-list";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Day } from "@prisma/client";
 
 interface Exercise {
     id: string;
@@ -31,6 +39,7 @@ interface Plan {
     name: string;
     description: string | null;
     exercises: PlanExercise[];
+    day: Day | null;
 }
 
 interface PlanFormProps {
@@ -44,6 +53,7 @@ export function PlanForm({ plan, exercises, className }: PlanFormProps) {
     const [isPending, startTransition] = useTransition();
     const [name, setName] = useState(plan?.name || "");
     const [description, setDescription] = useState(plan?.description || "");
+    const [day, setDay] = useState<Day | null>(plan?.day || null);
     const [selectedExercises, setSelectedExercises] = useState<Exercise[]>(
         plan?.exercises.map((e) => e.exercise) || []
     );
@@ -84,6 +94,7 @@ export function PlanForm({ plan, exercises, className }: PlanFormProps) {
                         id: plan.id,
                         name: name.trim(),
                         description: description.trim() || null,
+                        day,
                         exerciseIds: selectedExercises.map((e) => e.id),
                     });
                     toast.success("Plan updated!");
@@ -91,6 +102,7 @@ export function PlanForm({ plan, exercises, className }: PlanFormProps) {
                     await createPlan({
                         name: name.trim(),
                         description: description.trim() || undefined,
+                        day: day || undefined,
                         exerciseIds: selectedExercises.map((e) => e.id),
                     });
                     toast.success("Plan created!");
@@ -144,6 +156,26 @@ export function PlanForm({ plan, exercises, className }: PlanFormProps) {
                             className="input-electric resize-none"
                             rows={3}
                         />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Assigned Day (optional)</Label>
+                        <Select
+                            value={day || "none"}
+                            onValueChange={(val) => setDay(val === "none" ? null : (val as Day))}
+                        >
+                            <SelectTrigger className="input-electric">
+                                <SelectValue placeholder="Select a day" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">No specific day</SelectItem>
+                                {Object.values(Day).map((d) => (
+                                    <SelectItem key={d} value={d}>
+                                        {d.charAt(0) + d.slice(1).toLowerCase()}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </CardContent>
             </Card>

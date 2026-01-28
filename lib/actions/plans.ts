@@ -12,6 +12,7 @@ import {
     type DeletePlanInput,
 } from "@/lib/validations/plan";
 import { checkPartnerAccess } from "./partners";
+import { Day } from "@prisma/client";
 
 export async function getPlans(userId?: string) {
     const session = await auth();
@@ -25,9 +26,9 @@ export async function getPlans(userId?: string) {
         targetUserId = userId;
     }
 
-    return prisma.workoutPlan.findMany({
+    const plans = await prisma.workoutPlan.findMany({
         where: { userId: targetUserId },
-        orderBy: { updatedAt: "desc" },
+        // Remove DB sorting by updatedAt since we'll sort manually
         include: {
             exercises: {
                 include: { exercise: true },
@@ -35,6 +36,29 @@ export async function getPlans(userId?: string) {
             },
             _count: { select: { exercises: true } },
         },
+    });
+
+    // Sort by Day (Monday=1, Sunday=7, null=8) then by updatedAt desc
+    const dayOrder: Record<string, number> = {
+        MONDAY: 1,
+        TUESDAY: 2,
+        WEDNESDAY: 3,
+        THURSDAY: 4,
+        FRIDAY: 5,
+        SATURDAY: 6,
+        SUNDAY: 7,
+    };
+
+    return plans.sort((a, b) => {
+        const orderA = a.day ? dayOrder[a.day] : 8;
+        const orderB = b.day ? dayOrder[b.day] : 8;
+
+        if (orderA !== orderB) {
+            return orderA - orderB;
+        }
+
+        // If days are same (or both null), sort by updatedAt desc
+        return b.updatedAt.getTime() - a.updatedAt.getTime();
     });
 }
 
@@ -81,6 +105,7 @@ export async function createPlan(data: CreatePlanInput, targetUserId?: string) {
         data: {
             name: validated.name,
             description: validated.description,
+            day: validated.day,
             userId,
             exercises: {
                 create: validated.exerciseIds.map((exerciseId, index) => ({
@@ -119,9 +144,10 @@ export async function updatePlan(data: UpdatePlanInput, targetUserId?: string) {
     const validated = updatePlanSchema.parse(data);
 
     // Build update data
-    const updateData: { name?: string; description?: string | null } = {};
+    const updateData: { name?: string; description?: string | null; day?: Day | null } = {};
     if (validated.name !== undefined) updateData.name = validated.name;
     if (validated.description !== undefined) updateData.description = validated.description;
+    if (validated.day !== undefined) updateData.day = validated.day;
 
     // Update plan and exercises in a transaction
     const plan = await prisma.$transaction(async (tx) => {

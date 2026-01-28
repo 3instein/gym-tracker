@@ -158,6 +158,8 @@ model WorkoutPlan {
     user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
     exercises WorkoutPlanExercise[]
 
+    day Day? // Optional assigned day
+
     @@index([userId])
 }
 
@@ -178,6 +180,16 @@ model WorkoutPlanExercise {
 // ============================================
 // Enums
 // ============================================
+
+enum Day {
+    MONDAY
+    TUESDAY
+    WEDNESDAY
+    THURSDAY
+    FRIDAY
+    SATURDAY
+    SUNDAY
+}
 
 enum Category {
     CHEST

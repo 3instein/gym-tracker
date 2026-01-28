@@ -1,9 +1,11 @@
 import { z } from "zod";
+import { Day } from "@prisma/client";
 
 // Schema for creating a workout plan
 export const createPlanSchema = z.object({
     name: z.string().min(1, "Name is required").max(100),
     description: z.string().max(500).optional(),
+    day: z.nativeEnum(Day).optional(),
     exerciseIds: z.array(z.string()).min(1, "At least one exercise is required"),
 });
 
@@ -14,6 +16,7 @@ export const updatePlanSchema = z.object({
     id: z.string(),
     name: z.string().min(1, "Name is required").max(100).optional(),
     description: z.string().max(500).optional().nullable(),
+    day: z.nativeEnum(Day).optional().nullable(),
     exerciseIds: z.array(z.string()).min(1, "At least one exercise is required").optional(),
 });
 

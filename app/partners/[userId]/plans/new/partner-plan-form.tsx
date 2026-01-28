@@ -12,6 +12,14 @@ import { Loader2, Plus, ClipboardList } from "lucide-react";
 import { createPlan, updatePlan } from "@/lib/actions/plans";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Day } from "@prisma/client";
 
 interface Exercise {
     id: string;
@@ -31,6 +39,7 @@ interface Plan {
     name: string;
     description: string | null;
     exercises: PlanExercise[];
+    day: Day | null;
 }
 
 interface PartnerPlanFormProps {
@@ -48,6 +57,7 @@ export function PartnerPlanForm({ plan, exercises, userId, partnerName, classNam
     // Form state
     const [name, setName] = useState(plan?.name ?? "");
     const [description, setDescription] = useState(plan?.description ?? "");
+    const [day, setDay] = useState<Day | null>(plan?.day ?? null);
     const [selectedExercises, setSelectedExercises] = useState<Exercise[]>(
         plan?.exercises.map((pe) => pe.exercise) ?? []
     );
@@ -91,6 +101,7 @@ export function PartnerPlanForm({ plan, exercises, userId, partnerName, classNam
                         id: plan.id,
                         name: name.trim(),
                         description: description.trim() || null,
+                        day,
                         exerciseIds: selectedExercises.map((e) => e.id),
                     }, userId);
                     toast.success("Plan updated!");
@@ -98,6 +109,7 @@ export function PartnerPlanForm({ plan, exercises, userId, partnerName, classNam
                     await createPlan({
                         name: name.trim(),
                         description: description.trim() || undefined,
+                        day: day || undefined,
                         exerciseIds: selectedExercises.map((e) => e.id),
                     }, userId);
                     toast.success("Plan created!");
@@ -154,6 +166,27 @@ export function PartnerPlanForm({ plan, exercises, userId, partnerName, classNam
                             onChange={(e) => setDescription(e.target.value)}
                             rows={3}
                         />
+                    </div>
+
+                    {/* Day Selection */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Assigned Day (optional)</label>
+                        <Select
+                            value={day || "none"}
+                            onValueChange={(val) => setDay(val === "none" ? null : (val as Day))}
+                        >
+                            <SelectTrigger className="input-electric">
+                                <SelectValue placeholder="Select a day" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">No specific day</SelectItem>
+                                {Object.values(Day).map((d) => (
+                                    <SelectItem key={d} value={d}>
+                                        {d.charAt(0) + d.slice(1).toLowerCase()}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     {/* Exercises */}
