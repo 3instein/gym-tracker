@@ -10,6 +10,7 @@ import { ClipboardList, Plus, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PartnerPlanCard } from "./partner-plan-card";
+import { WeeklyPlanTimeline } from "@/components/plans/weekly-plan-timeline";
 
 export default async function PartnerPlansPage({
     params,
@@ -69,6 +70,9 @@ export default async function PartnerPlansPage({
                             </Link>
                         </Button>
                     </div>
+
+                    {/* Weekly Timeline */}
+                    {plans.length > 0 && <WeeklyPlanTimeline plans={plans} partnerId={userId} />}
 
                     {/* Plans list */}
                     {plans.length === 0 ? (
