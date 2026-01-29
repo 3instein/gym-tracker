@@ -1,8 +1,7 @@
 "use client";
 
-import { useDraggable } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
-import { Dumbbell, Calendar, ClipboardList } from "lucide-react";
+import { Dumbbell, Calendar, ClipboardList, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Category } from "@prisma/client";
 
@@ -49,40 +48,32 @@ const categoryColors: Record<Category, string> = {
     OTHER: "bg-gray-500/10 text-gray-500",
 };
 
-export function DraggableDataItem({ data }: { data: DraggableData }) {
-    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-        id: `${data.type}-${data.id}`,
-        data,
-    });
-
+export function DataItem({ data, onClick }: { data: DraggableData; onClick?: (data: DraggableData) => void }) {
     return (
         <div
-            ref={setNodeRef}
-            {...listeners}
-            {...attributes}
+            onClick={() => onClick?.(data)}
             className={cn(
-                "flex items-center gap-3 p-3 rounded-lg border bg-card cursor-grab relative overflow-hidden",
+                "group flex items-center gap-3 p-3 rounded-lg border bg-card cursor-pointer relative overflow-hidden",
                 "hover:bg-accent/50 hover:border-primary/30 transition-all",
-                "select-none touch-none",
-                isDragging && "opacity-50 ring-2 ring-primary"
+                "select-none"
             )}
         >
             <div className="shrink-0">
-                {data.type === "exercise" && <Dumbbell className="h-4 w-4 text-muted-foreground" />}
-                {data.type === "workout" && <Calendar className="h-4 w-4 text-muted-foreground" />}
-                {data.type === "plan" && <ClipboardList className="h-4 w-4 text-muted-foreground" />}
+                {data.type === "exercise" && <Dumbbell className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />}
+                {data.type === "workout" && <Calendar className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />}
+                {data.type === "plan" && <ClipboardList className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />}
             </div>
-            <div className="flex-1 min-w-0 pr-16">
+            <div className="flex-1 min-w-0 pr-8">
                 {data.type === "exercise" && (
                     <>
-                        <p className="font-medium text-sm truncate">{data.name}</p>
+                        <p className="font-medium text-sm truncate group-hover:text-primary transition-colors">{data.name}</p>
                         <div className="flex items-center gap-2 mt-1">
                             <Badge variant="outline" className={cn("text-xs", categoryColors[data.category])}>
                                 {data.category}
                             </Badge>
                         </div>
                         {data.stats && (data.stats.maxWeight > 0 || data.stats.maxReps > 0) && (
-                            <div className="absolute top-2.5 right-3 flex flex-col items-end gap-0">
+                            <div className="absolute top-2.5 right-10 flex flex-col items-end gap-0">
                                 {data.stats.maxWeight > 0 && (
                                     <div className="flex items-baseline gap-0.5">
                                         <span className="text-sm font-bold text-foreground">{data.stats.maxWeight}</span>
@@ -101,7 +92,7 @@ export function DraggableDataItem({ data }: { data: DraggableData }) {
                 )}
                 {data.type === "workout" && (
                     <>
-                        <p className="font-medium text-sm truncate">
+                        <p className="font-medium text-sm truncate group-hover:text-primary transition-colors">
                             {data.name || new Date(data.date).toLocaleDateString()}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -111,18 +102,21 @@ export function DraggableDataItem({ data }: { data: DraggableData }) {
                 )}
                 {data.type === "plan" && (
                     <>
-                        <p className="font-medium text-sm truncate">{data.name}</p>
+                        <p className="font-medium text-sm truncate group-hover:text-primary transition-colors">{data.name}</p>
                         <p className="text-xs text-muted-foreground mt-1">
                             {data.exercises.length} exercise{data.exercises.length !== 1 ? "s" : ""}
                         </p>
                     </>
                 )}
             </div>
+            <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Plus className="h-4 w-4 text-primary" />
+            </div>
         </div>
     );
 }
 
-// Helper function to convert dragged data to text for the prompt
+// Helper function to convert data to text for the prompt
 export function dataToPromptText(data: DraggableData): string {
     switch (data.type) {
         case "exercise":

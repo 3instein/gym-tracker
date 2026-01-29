@@ -49,7 +49,7 @@ export function AIResponse({ response, error, isLoading }: AIResponseProps) {
                     AI response will appear here
                 </p>
                 <p className="text-sm text-muted-foreground/70 mt-1">
-                    Drag gym data and ask questions about your workouts
+                    Click gym data and ask questions about your workouts
                 </p>
             </div>
         );
