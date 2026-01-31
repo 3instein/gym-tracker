@@ -36,6 +36,14 @@ export async function getWorkouts(limit?: number, userId?: string) {
                 include: { exercise: true },
                 orderBy: [{ exerciseId: "asc" }, { setNumber: "asc" }],
             },
+            plan: {
+                include: {
+                    exercises: {
+                        include: { exercise: true },
+                        orderBy: { order: "asc" },
+                    },
+                },
+            },
             _count: { select: { sets: true } },
         },
     });
@@ -51,6 +59,14 @@ export async function getWorkout(id: string) {
             sets: {
                 include: { exercise: true },
                 orderBy: [{ exerciseId: "asc" }, { setNumber: "asc" }],
+            },
+            plan: {
+                include: {
+                    exercises: {
+                        include: { exercise: true },
+                        orderBy: { order: "asc" },
+                    },
+                },
             },
         },
     });

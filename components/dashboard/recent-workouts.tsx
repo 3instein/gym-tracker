@@ -27,6 +27,13 @@ interface Workout {
     status: string;
     duration: number | null;
     sets: Set[];
+    plan?: {
+        exercises: {
+            exercise: {
+                category: string;
+            };
+        }[];
+    } | null;
     _count: { sets: number };
 }
 
@@ -50,9 +57,14 @@ const categoryColors: Record<string, string> = {
 
 export function RecentWorkouts({ workouts, viewAllLink = "/workouts" }: RecentWorkoutsProps) {
     // Get unique exercise categories from sets
-    const getWorkoutCategories = (sets: Set[]) => {
-        const categories = [...new Set(sets.map((s) => s.exercise.category))];
-        return categories.slice(0, 3); // Show max 3 categories
+    const getWorkoutCategories = (workout: Workout) => {
+        let categories = workout.sets.map((s) => s.exercise.category);
+
+        if (categories.length === 0 && workout.plan?.exercises) {
+            categories = workout.plan.exercises.map((e) => e.exercise.category);
+        }
+
+        return [...new Set(categories)].slice(0, 3); // Show max 3 categories
     };
 
     if (workouts.length === 0) {
@@ -145,7 +157,7 @@ export function RecentWorkouts({ workouts, viewAllLink = "/workouts" }: RecentWo
                                                 )}
                                             </div>
                                             <div className="flex flex-wrap gap-1.5">
-                                                {getWorkoutCategories(workout.sets).map((category) => (
+                                                {getWorkoutCategories(workout).map((category) => (
                                                     <Badge
                                                         key={category}
                                                         variant="outline"

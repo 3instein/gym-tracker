@@ -33,6 +33,10 @@ export default async function WorkoutPage({ params, searchParams }: WorkoutPageP
     if (typeof initialExercises === "string") {
         const exerciseIds = initialExercises.split(",");
         initialAddedExercises = exercises.filter((e) => exerciseIds.includes(e.id));
+    } else if (workout.plan?.exercises) {
+        // Fallback to plan exercises if no URL param
+        const planExerciseIds = workout.plan.exercises.map((pe) => pe.exerciseId);
+        initialAddedExercises = exercises.filter((e) => planExerciseIds.includes(e.id));
     }
 
     // Serialize workout for client components using JSON stringify/parse to ensure no Decimals remain

@@ -255,6 +255,7 @@ export async function startWorkoutFromPlan(planId: string, targetUserId?: string
             date: dateOnly,
             status: "IN_PROGRESS",
             userId,
+            planId,
         },
     });
 

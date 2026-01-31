@@ -33,6 +33,13 @@ interface Workout {
     status: string;
     duration: number | null;
     sets: Set[];
+    plan?: {
+        exercises: {
+            exercise: {
+                category: string;
+            };
+        }[];
+    } | null;
     _count: {
         sets: number;
     };
@@ -63,9 +70,14 @@ export function WorkoutCard({ workout, categoryColors }: WorkoutCardProps) {
         });
     };
 
-    const getWorkoutCategories = (sets: Set[]) => {
-        const categories = [...new Set(sets.map((s) => s.exercise.category))];
-        return categories.slice(0, 3);
+    const getWorkoutCategories = (workout: Workout) => {
+        let categories = workout.sets.map((s) => s.exercise.category);
+
+        if (categories.length === 0 && workout.plan?.exercises) {
+            categories = workout.plan.exercises.map((e) => e.exercise.category);
+        }
+
+        return [...new Set(categories)].slice(0, 3);
     };
 
     return (
@@ -108,7 +120,7 @@ export function WorkoutCard({ workout, categoryColors }: WorkoutCardProps) {
                             )}
                         </div>
                         <div className="flex flex-wrap gap-1.5">
-                            {getWorkoutCategories(workout.sets).map((category) => (
+                            {getWorkoutCategories(workout).map((category) => (
                                 <Badge
                                     key={category}
                                     variant="outline"
