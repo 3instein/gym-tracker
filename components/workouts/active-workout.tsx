@@ -53,12 +53,14 @@ interface Workout {
 interface ActiveWorkoutProps {
     workout: Workout;
     exercises: Exercise[];
+    initialAddedExercises?: Exercise[];
+    lastSets?: Record<string, { reps: number; weight: string | number }>;
 }
 
-export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
+export function ActiveWorkout({ workout, exercises, initialAddedExercises = [], lastSets = {} }: ActiveWorkoutProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
-    const [addedExercises, setAddedExercises] = useState<Exercise[]>([]);
+    const [addedExercises, setAddedExercises] = useState<Exercise[]>(initialAddedExercises);
     const [selectedCategory, setSelectedCategory] = useState<Category>("ALL");
 
     // Group sets by exercise
@@ -256,6 +258,7 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
                                         ? () => handleRemoveExercise(exercise.id)
                                         : undefined
                                 }
+                                initialLastSet={lastSets[exercise.id]}
                             />
                         );
                     })}
@@ -263,7 +266,7 @@ export function ActiveWorkout({ workout, exercises }: ActiveWorkoutProps) {
             )}
 
             {/* Fixed Rest Timer */}
-            <RestTimer className="fixed bottom-6 right-6 z-50 w-72 shadow-2xl ring-1 ring-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" />
+            <RestTimer className="fixed bottom-6 right-6 z-50 w-72 shadow-2xl ring-1 ring-border/50 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60" />
         </div>
     );
 }

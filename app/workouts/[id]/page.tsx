@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { getWorkout } from "@/lib/actions/workouts";
+import { getLastSetsForUser } from "@/lib/actions/sets";
 import { getExercises } from "@/lib/actions/exercises";
 import { ExportWorkoutButton } from "@/components/workouts/export-workout-button";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -10,28 +11,39 @@ import { notFound } from "next/navigation";
 
 interface WorkoutPageProps {
     params: Promise<{ id: string }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function WorkoutPage({ params }: WorkoutPageProps) {
+export default async function WorkoutPage({ params, searchParams }: WorkoutPageProps) {
     const { id } = await params;
+    const { initialExercises } = await searchParams;
     const session = await auth();
-    const [workout, exercises] = await Promise.all([
+    const [workout, exercises, lastSets] = await Promise.all([
         getWorkout(id),
         getExercises(),
+        getLastSetsForUser(),
     ]);
 
     if (!workout) {
         notFound();
     }
 
-    // Serialize workout for client components
-    const serializedWorkout = {
+    // Filter initial exercises from URL param
+    let initialAddedExercises: typeof exercises = [];
+    if (typeof initialExercises === "string") {
+        const exerciseIds = initialExercises.split(",");
+        initialAddedExercises = exercises.filter((e) => exerciseIds.includes(e.id));
+    }
+
+    // Serialize workout for client components using JSON stringify/parse to ensure no Decimals remain
+    const serializedWorkout = JSON.parse(JSON.stringify({
         ...workout,
         sets: workout.sets.map((s) => ({
             ...s,
             weight: s.weight.toString(),
+            // Ensure no other potential decimal fields slip through
         })),
-    };
+    }));
 
     const isActive = workout.status === "IN_PROGRESS";
 
@@ -46,7 +58,12 @@ export default async function WorkoutPage({ params }: WorkoutPageProps) {
                 />
                 <main className="p-6">
                     {isActive ? (
-                        <ActiveWorkout workout={serializedWorkout} exercises={exercises} />
+                        <ActiveWorkout
+                            workout={serializedWorkout}
+                            exercises={exercises}
+                            initialAddedExercises={initialAddedExercises}
+                            lastSets={lastSets}
+                        />
                     ) : (
                         <WorkoutDetail workout={serializedWorkout} />
                     )}

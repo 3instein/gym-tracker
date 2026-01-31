@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { Set as PrismaSet } from "@prisma/client";
 import {
     createSetSchema,
     updateSetSchema,
@@ -25,11 +26,13 @@ export async function getSetsForWorkout(workoutSessionId: string) {
 
     if (!workout) throw new Error("Workout not found");
 
-    return prisma.set.findMany({
+    const sets = await prisma.set.findMany({
         where: { workoutSessionId },
         include: { exercise: true },
         orderBy: [{ exerciseId: "asc" }, { setNumber: "asc" }],
     });
+
+    return JSON.parse(JSON.stringify(sets));
 }
 
 export async function createSet(data: CreateSetInput) {
@@ -61,7 +64,7 @@ export async function createSet(data: CreateSetInput) {
 
     revalidatePath("/");
     revalidatePath(`/workouts/${validated.workoutSessionId}`);
-    return set;
+    return JSON.parse(JSON.stringify(set));
 }
 
 export async function quickAddSet(data: QuickAddSetInput) {
@@ -101,7 +104,7 @@ export async function quickAddSet(data: QuickAddSetInput) {
 
     revalidatePath("/");
     revalidatePath(`/workouts/${validated.workoutSessionId}`);
-    return set;
+    return JSON.parse(JSON.stringify(set));
 }
 
 export async function updateSet(data: UpdateSetInput) {
@@ -135,7 +138,7 @@ export async function updateSet(data: UpdateSetInput) {
 
     revalidatePath("/");
     revalidatePath(`/workouts/${existingSet.workoutSessionId}`);
-    return set;
+    return JSON.parse(JSON.stringify(set));
 }
 
 export async function deleteSet(data: DeleteSetInput) {
@@ -167,11 +170,38 @@ export async function getLastSetForExercise(exerciseId: string) {
     if (!session?.user?.id) throw new Error("Unauthorized");
 
     // Get the most recent set for this exercise
-    return prisma.set.findFirst({
+    const set = await prisma.set.findFirst({
         where: {
             exerciseId,
             workoutSession: { userId: session.user.id },
         },
         orderBy: { createdAt: "desc" },
     });
+
+    if (!set) return null;
+    return JSON.parse(JSON.stringify(set));
+}
+
+export async function getLastSetsForUser() {
+    const session = await auth();
+    if (!session?.user?.id) throw new Error("Unauthorized");
+
+    // Get the most recent set for EACH exercise by this user
+    // We use findMany with distinct to get the latest per exercise
+    // Note: ordered by createdAt desc to prioritize latest
+    const sets = await prisma.set.findMany({
+        where: {
+            workoutSession: { userId: session.user.id },
+        },
+        orderBy: { createdAt: "desc" },
+        distinct: ['exerciseId'],
+    });
+
+    // Convert array to map for O(1) lookup: Record<ExerciseId, Set>
+    const lastSetsMap: Record<string, PrismaSet> = {};
+    sets.forEach(set => {
+        lastSetsMap[set.exerciseId] = set;
+    });
+
+    return JSON.parse(JSON.stringify(lastSetsMap));
 }

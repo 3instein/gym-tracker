@@ -1,3 +1,4 @@
+import { ComponentProps } from "react";
 import { auth } from "@/lib/auth";
 import { getWorkouts } from "@/lib/actions/workouts";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -26,13 +27,13 @@ export default async function WorkoutsPage() {
     const workouts = await getWorkouts();
 
     // Serialize workouts for client components
-    const serializedWorkouts = workouts.map((w) => ({
+    const serializedWorkouts = JSON.parse(JSON.stringify(workouts.map((w) => ({
         ...w,
         sets: w.sets.map((s) => ({
             ...s,
             weight: s.weight.toString(),
         })),
-    }));
+    }))));
 
     return (
         <div className="flex min-h-screen bg-background">
@@ -80,7 +81,7 @@ export default async function WorkoutsPage() {
                         </Card>
                     ) : (
                         <div className="space-y-3">
-                            {serializedWorkouts.map((workout) => (
+                            {serializedWorkouts.map((workout: ComponentProps<typeof WorkoutCard>["workout"]) => (
                                 <WorkoutCard
                                     key={workout.id}
                                     workout={workout}

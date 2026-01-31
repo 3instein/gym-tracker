@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Minus, Trash2, Loader2, Check } from "lucide-react";
-import { quickAddSet, deleteSet, getLastSetForExercise } from "@/lib/actions/sets";
+import { quickAddSet, deleteSet } from "@/lib/actions/sets";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -30,6 +29,7 @@ interface SetLoggerProps {
     exercise: Exercise;
     sets: Set[];
     onRemoveExercise?: () => void;
+    initialLastSet?: { reps: number; weight: string | number } | null;
 }
 
 const categoryColors: Record<string, string> = {
@@ -50,21 +50,43 @@ export function SetLogger({
     exercise,
     sets,
     onRemoveExercise,
+    initialLastSet,
 }: SetLoggerProps) {
     const [isPending, startTransition] = useTransition();
-    const [reps, setReps] = useState<string>(() =>
-        sets.length > 0 ? String(sets[sets.length - 1].reps) : "10"
-    );
-    const [weight, setWeight] = useState<string>(() => {
+
+    // Determine initial values
+    // 1. If sets exist in this session, use the last one.
+    // 2. If no sets, use initialLastSet (server-fetched).
+    // 3. Default to "10" reps and empty weight.
+    const getInitialReps = () => {
+        if (sets.length > 0) return String(sets[sets.length - 1].reps);
+        if (initialLastSet) return String(initialLastSet.reps);
+        return "10";
+    };
+
+    const getInitialWeight = () => {
         if (sets.length > 0) {
             const val = Number(sets[sets.length - 1].weight);
             return val === 0 ? "" : String(val);
         }
+        if (initialLastSet) {
+            const val = Number(initialLastSet.weight);
+            return val === 0 ? "" : String(val);
+        }
         return "";
-    });
-    const [lastSet, setLastSet] = useState<{ reps: number; weight: number } | null>(null);
+    };
+
+    const [reps, setReps] = useState<string>(getInitialReps);
+    const [weight, setWeight] = useState<string>(getInitialWeight);
 
     // Sync with props during render if the number of sets changes (e.g., set added or deleted)
+    // We only need to sync if a set was ADDED/DELETED in the CURRENT session.
+    // If the list becomes empty (all deleted), we might want to revert to initialLastSet, 
+    // but for simplicity let's stick to the last known set or keep current inputs.
+    // Actually, distinct valid behavior: if user deletes all sets, we probably want to revert to "Last time" values
+    // OR just keep what's there. 
+    // Let's keep the logic that copies from the *previous* set in the list if available.
+
     const [prevSetsLength, setPrevSetsLength] = useState(sets.length);
     if (sets.length !== prevSetsLength) {
         setPrevSetsLength(sets.length);
@@ -72,26 +94,19 @@ export function SetLogger({
             const last = sets[sets.length - 1];
             setReps(String(last.reps));
             setWeight(Number(last.weight) === 0 ? "" : String(last.weight));
+        } else if (sets.length === 0 && initialLastSet) {
+            // Optional: If all sets deleted, revert to last session values?
+            // User just said "I want it to be ready", implies prefill.
+            setReps(String(initialLastSet.reps));
+            setWeight(Number(initialLastSet.weight) === 0 ? "" : String(initialLastSet.weight));
         }
     }
 
-    // Fetch last set from previous sessions ONLY if we have no sets today
-    const isEmpty = sets.length === 0;
-    const { data: lastSetData } = useQuery({
-        queryKey: ['lastSet', exercise.id],
-        queryFn: () => getLastSetForExercise(exercise.id),
-        enabled: isEmpty,
-        staleTime: 1000 * 60 * 5, // 5 minutes
-    });
+    // Derived state for last set display
+    const lastSet = (!sets.length && initialLastSet)
+        ? { reps: initialLastSet.reps, weight: Number(initialLastSet.weight) }
+        : null;
 
-    // Update state when lastSetData changes
-    useEffect(() => {
-        if (lastSetData && isEmpty) {
-            setLastSet({ reps: lastSetData.reps, weight: Number(lastSetData.weight) });
-            setReps(String(lastSetData.reps));
-            setWeight(Number(lastSetData.weight) === 0 ? "" : String(lastSetData.weight));
-        }
-    }, [lastSetData, isEmpty]);
 
     const handleAddSet = () => {
         startTransition(async () => {

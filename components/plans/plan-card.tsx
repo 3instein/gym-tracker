@@ -79,7 +79,11 @@ export function PlanCard({ plan }: PlanCardProps) {
         startTransition(async () => {
             try {
                 const result = await startWorkoutFromPlan(plan.id);
-                router.push(`/workouts/${result.workout.id}`);
+                const params = new URLSearchParams();
+                if (result.exerciseIds.length > 0) {
+                    params.set("initialExercises", result.exerciseIds.join(","));
+                }
+                router.push(`/workouts/${result.workout.id}?${params.toString()}`);
                 toast.success("Workout started from plan!");
             } catch (error) {
                 console.error("Failed to start workout:", error);

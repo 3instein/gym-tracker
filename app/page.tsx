@@ -20,14 +20,14 @@ export default async function DashboardPage() {
     getActiveWorkout(),
   ]);
 
-  // Serialize workouts for client components (convert Decimal to string)
-  const serializedWorkouts = workouts.map((w) => ({
+  // Serialize workouts for client components (ensure no Decimal objects)
+  const serializedWorkouts = JSON.parse(JSON.stringify(workouts.map((w) => ({
     ...w,
     sets: w.sets.map((s) => ({
       ...s,
       weight: s.weight.toString(),
     })),
-  }));
+  }))));
 
   return (
     <div className="flex min-h-screen bg-background">
