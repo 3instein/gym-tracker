@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw, Timer } from "lucide-react";
+import { Play, Pause, RotateCcw, Timer, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface RestTimerProps {
@@ -14,6 +14,7 @@ export function RestTimer({ defaultDuration = 60, className }: RestTimerProps) {
     const [baseDuration, setBaseDuration] = useState(defaultDuration);
     const [timeLeft, setTimeLeft] = useState(defaultDuration);
     const [isActive, setIsActive] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
 
     const playNotificationSound = () => {
         try {
@@ -125,11 +126,46 @@ export function RestTimer({ defaultDuration = 60, className }: RestTimerProps) {
         return `${mins}:${secs.toString().padStart(2, "0")}`;
     };
 
+    if (isCollapsed) {
+        return (
+            <Button
+                variant="outline"
+                className={cn(
+                    "h-14 w-14 rounded-full shadow-xl p-0 bg-background border-2 transition-all hover:scale-105 active:scale-95",
+                    isActive && "border-electric text-electric animate-pulse ring-2 ring-electric/20",
+                    className
+                )}
+                onClick={() => setIsCollapsed(false)}
+            >
+                <div className="flex flex-col items-center justify-center gap-0.5">
+                    <Timer className={cn("h-5 w-5", isActive && "animate-pulse")} />
+                    {isActive && (
+                        <span className="text-[10px] font-mono font-bold leading-none">
+                            {formatTime(timeLeft)}
+                        </span>
+                    )}
+                </div>
+            </Button>
+        );
+    }
+
     return (
-        <div className={cn("flex flex-col gap-2 p-4 rounded-xl border bg-card shadow-sm", className)}>
+        <div
+            className={cn(
+                "flex flex-col gap-2 p-4 rounded-xl border shadow-2xl ring-1 ring-border/50 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 w-72 transition-all animate-in slide-in-from-bottom-2 duration-200",
+                className
+            )}
+        >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Timer className="h-4 w-4 text-muted-foreground" />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 -ml-1 text-muted-foreground hover:text-foreground"
+                        onClick={() => setIsCollapsed(true)}
+                    >
+                        <ChevronDown className="h-4 w-4" />
+                    </Button>
                     <span className="text-sm font-medium">Rest Timer</span>
                 </div>
                 <div className="font-mono text-2xl font-bold tracking-wider tabular-nums">
